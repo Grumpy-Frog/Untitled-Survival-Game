@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CubeCollider.cpp" />
     <ClCompile Include="Hedge.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MazeGenerator.cpp" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CubeCollider.h" />
     <ClInclude Include="Hedge.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="mesh.h" />

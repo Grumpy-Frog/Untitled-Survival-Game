@@ -10,6 +10,7 @@
 #include "Shader.h"
 #include "model.h"
 #include "Mesh.h"
+#include "Camera.h"
 using namespace std;
 
 /*
@@ -93,18 +94,24 @@ public:
 class Player
 {
 private:
-	
+	glm::vec3 playerPosition;
+
+public:
+	glm::vec3 getPosition() const
+	{
+		return playerPosition;
+	}
 public:
 	Player()
 	{
-
+		playerPosition = glm::vec3(2.0f, 0.0f, 2.0f);
 	}
 	void init()
 	{
 		
 	}
 
-	void Update(glm::mat4 &projection, glm::mat4 &view, Shader &playerShader, Model &playerModel)
+	void Update(glm::mat4 &projection, glm::mat4 &view, Shader &playerShader, Model &playerModel,Camera &camera)
 	{
 		
 		playerShader.use();
@@ -114,8 +121,8 @@ public:
 
 		/// draw player
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 2.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 2.0f, 1.0f));
+		model = glm::translate(model, playerPosition);
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		playerShader.setMat4("model", model);
 		playerModel.Draw(playerShader);
 		

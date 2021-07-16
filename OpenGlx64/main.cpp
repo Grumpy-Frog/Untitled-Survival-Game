@@ -81,7 +81,7 @@ int main()
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// glew load all OpenGL function pointers
-	// ---------------------------------------
+	// --------------------------------------
 	if (glewInit() != GLEW_OK)
 	{
 		std::cout << "Failed to initialize GLEW" << std::endl;
@@ -159,7 +159,8 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 
 		myHedges.update(projection, view, cubeShader, cube, camera);
-		myPlayer.Update(projection, view, playerShader, playerModel);
+		myPlayer.Update(projection, view, playerShader, playerModel,camera);
+		
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------

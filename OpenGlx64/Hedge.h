@@ -13,6 +13,8 @@
 #include "Mesh.h"
 #include "MazeGenerator.h"
 #include "Camera.h"
+#include "CubeCollider.h"
+
 using namespace std;
 
 
@@ -21,6 +23,9 @@ class Hedge
 private:
 	std::vector<glm::mat4> modelMatrices;
 
+	std::vector<CubeCollider> cubeColliders;
+
+private:
 	bool isIndexValid(int i, int j)
 	{
 		if (i<0 || j<0 || i>COL - 1 || j > COL - 1)
@@ -30,7 +35,7 @@ private:
 		return true;
 	}
 
-	void PositioningModels(int myMazeArray[], std::vector<glm::mat4>& modelMatrices)
+	void PositioningModels(int myMazeArray[], std::vector<glm::mat4>& modelMatricesRef)
 	{
 		for (unsigned int i = 0; i < COL; i++)
 		{
@@ -71,7 +76,56 @@ private:
 									model = glm::translate(model, extraHedgePositions[valueOfCheckingIndex]);
 
 
-									modelMatrices.push_back(model);
+									modelMatricesRef.push_back(model);
+								}
+							}
+						}
+						y--;
+					}
+				}
+			}
+		}
+	}
+
+	void PositioningColliders(int myMazeArray[], std::vector<CubeCollider>& cubeCollidersRef)
+	{
+		for (unsigned int i = 0; i < COL; i++)
+		{
+			for (unsigned int j = 0; j < COL; j++)
+			{
+				float x, y = 1.0, z;
+				x = (i * COL + j) % COL * 2.0;
+				z = (i * COL + j) / COL * 2.0;
+
+				if (myMazeArray[i * COL + j] == 1)
+				{
+					while (y >= 0)
+					{
+						glm::mat4 model = glm::mat4(1.0f);
+						model = glm::scale(model, glm::vec3(1.0f));
+						model = glm::translate(model, glm::vec3(x, y, z));
+
+						modelMatrices.push_back(model);
+
+						int indexY[] = { i - 1,i + 1,i,i };
+						int indexX[] = { j,j,j - 1,j + 1 };
+						glm::vec3 extraHedgePositions[] =
+						{
+							glm::vec3(x, y,z - 1.0),
+							glm::vec3(x,  y,z + 1.0),
+							glm::vec3(x - 1.0, y, z),
+							glm::vec3(x + 1.0, y, z)
+						};
+
+						for (unsigned int valueOfCheckingIndex = 0; valueOfCheckingIndex < 4; valueOfCheckingIndex++)
+						{
+							if (isIndexValid(indexY[valueOfCheckingIndex], indexX[valueOfCheckingIndex]))
+							{
+								if (myMazeArray[indexY[valueOfCheckingIndex] * COL + indexX[valueOfCheckingIndex]] == 1)
+								{
+									CubeCollider collider(extraHedgePositions[valueOfCheckingIndex]);
+									
+									cubeCollidersRef.push_back(collider);
 								}
 							}
 						}
@@ -85,6 +139,8 @@ public:
 	Hedge(Model &cube)
 	{
 		modelMatrices.clear();
+		cubeColliders.clear();
+
 		init(cube);
 	}
 
@@ -191,9 +247,10 @@ public:
 		int* myMazeArray = myMazeObj.getMaze();
 		//MazeRenderFunctions::
 		PositioningModels(myMazeArray, modelMatrices);
-
+		
+		
 		// configure instanced array
-	// -------------------------
+	    // -------------------------
 		unsigned int buffer;
 		glGenBuffers(1, &buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -227,6 +284,7 @@ public:
 		}
 	}
 
+	
 };
 
 #endif //HEDGE_H
