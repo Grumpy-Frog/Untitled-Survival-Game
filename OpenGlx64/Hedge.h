@@ -75,7 +75,6 @@ private:
 									model = glm::scale(model, glm::vec3(1.0f));
 									model = glm::translate(model, extraHedgePositions[valueOfCheckingIndex]);
 
-
 									modelMatricesRef.push_back(model);
 								}
 							}
@@ -101,11 +100,10 @@ private:
 				{
 					while (y >= 0)
 					{
-						glm::mat4 model = glm::mat4(1.0f);
-						model = glm::scale(model, glm::vec3(1.0f));
-						model = glm::translate(model, glm::vec3(x, y, z));
+						glm::vec3 pos = glm::vec3(x, y, z);
+						CubeCollider collider2(pos);
 
-						modelMatrices.push_back(model);
+						cubeCollidersRef.push_back(collider2);
 
 						int indexY[] = { i - 1,i + 1,i,i };
 						int indexX[] = { j,j,j - 1,j + 1 };
@@ -247,7 +245,7 @@ public:
 		int* myMazeArray = myMazeObj.getMaze();
 		//MazeRenderFunctions::
 		PositioningModels(myMazeArray, modelMatrices);
-		
+		PositioningColliders(myMazeArray, cubeColliders);
 		
 		// configure instanced array
 	    // -------------------------
@@ -284,7 +282,15 @@ public:
 		}
 	}
 
-	
+	std::vector<CubeCollider> getColliders()
+	{
+		return this->cubeColliders;
+	}
+
+	std::vector<glm::mat4> getModelMatrices()
+	{
+		return this->modelMatrices;
+	}
 };
 
 #endif //HEDGE_H

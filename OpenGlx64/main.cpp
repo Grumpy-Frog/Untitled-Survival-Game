@@ -33,7 +33,7 @@ const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(0.0f, 10.0f, 0.0f));
+Camera camera(glm::vec3(-10.0f, 10.0f, 0.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -113,7 +113,7 @@ int main()
 
 	// generate a large list of semi-random model transformation matrices
 	// ------------------------------------------------------------------
-	
+
 
 	/* we can now get data for the specific OpenGL instance we created */
 	const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -130,24 +130,20 @@ int main()
 	printf("GLSL Version : %s\n", glslVersion);
 
 
-	
 
+	CollisionDetection myCollisionChecker;
 
 
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-		
 		// per-frame time logic
 		// --------------------
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		// input
-		// -----
-		processInput(window);
 
 		// render
 		// ------
@@ -159,8 +155,32 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 
 		myHedges.update(projection, view, cubeShader, cube, camera);
-		myPlayer.Update(projection, view, playerShader, playerModel,camera);
+
+		//myPlayer.Update(projection, view, playerShader, playerModel,camera);
+		myPlayer.setPosition(camera.Position);
+		//camera.Position = myPlayer.getPosition();
+		//camera.Position = camera.Position * glm::vec3(0.0f, 1.0f, 0.0f);
+		myPlayer.updateMovement(window, deltaTime);
+
+
+		// input
+		// -----
+		glm::vec3 prevPos = camera.Position;
+		processInput(window);
+
+		auto iter = myHedges.getColliders();
+		int size = iter.size();
+
+		camera.Position.y = 0;
 		
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				glm::vec3 newPos1 = (prevPos + camera.Right / 150.0f);
+			}
+		}
+
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------

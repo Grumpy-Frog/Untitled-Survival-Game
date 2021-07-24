@@ -5,6 +5,8 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include "Player.h"
+
 #include <vector>
 
 class CubeCollider 
@@ -33,6 +35,34 @@ public:
 	}
 };
 
+class CollisionDetection
+{
+public:
+	CollisionDetection()
+	{
 
+	}
+
+	bool SphereRectCollision(Player& sphere, CubeCollider& rect)
+	{
+		float sphereXDistance = abs(sphere.getPosition().x - rect.getPosition().x);
+		float sphereYDistance = abs(sphere.getPosition().y - rect.getPosition().y);
+		float sphereZDistance = abs(sphere.getPosition().z - rect.getPosition().z);
+
+		if (sphereXDistance >= (1.0f + sphere.getRadious())) {return false; }
+		if (sphereYDistance >= (1.0f + sphere.getRadious())) { return false; }
+		if (sphereZDistance >= (1.0f + sphere.getRadious())) { return false; }
+
+		if (sphereXDistance < (1.0f)) { return true; }
+		if (sphereYDistance < (1.0f)) { return true; }
+		if (sphereZDistance < (1.0f)) { return true; }
+
+		float cornerDistance_sq = ((sphereXDistance - 1.0f) * (sphereXDistance - 1.0f)) +
+			((sphereYDistance - 1.0f) * (sphereYDistance - 1.0f) +
+				((sphereYDistance - 1.0f) * (sphereYDistance - 1.0f)));
+
+		return (cornerDistance_sq < (sphere.getRadious() * sphere.getRadious()));
+	}
+};
 
 #endif //CUBECOLLIDER_H
