@@ -127,7 +127,7 @@ public:
 	{
 		Position = position;
 		WorldUp = up;
-		Yaw = yaw;
+		Yaw = 0;
 		Pitch = pitch;
 
 		updateCameraVectors();
@@ -137,7 +137,7 @@ public:
 	{
 		Position = glm::vec3(posX, posY, posZ);
 		WorldUp = glm::vec3(upX, upY, upZ);
-		Yaw = yaw;
+		Yaw = 0;
 		Pitch = pitch;
 
 		updateCameraVectors();
@@ -162,11 +162,14 @@ public:
 			Position -= Right * velocity;
 		if (direction == RIGHT)
 			Position += Right * velocity;
+
+		Position.y = 1.0f;
 	}
 
 	// processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
 	{
+		
 		xoffset *= MouseSensitivity;
 		yoffset *= MouseSensitivity;
 

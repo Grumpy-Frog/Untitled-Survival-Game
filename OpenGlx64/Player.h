@@ -57,7 +57,7 @@ public:
 		/// draw player
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, playerPosition);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
 		playerShader.setMat4("model", model);
 		playerModel.Draw(playerShader);
 	}

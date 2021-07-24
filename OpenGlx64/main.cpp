@@ -26,14 +26,14 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(-10.0f, 10.0f, 0.0f));
+Camera camera(glm::vec3(-10.0f, 0.0f, 0.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -47,7 +47,7 @@ float lastFrame = 0.0f;
 /// USER DEFINE FUNCTIONS //////////////////////////////
 /// </summary>
 
-
+//float lastXoffset;
 
 int main()
 {
@@ -131,9 +131,6 @@ int main()
 
 
 
-	CollisionDetection myCollisionChecker;
-
-
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -157,29 +154,12 @@ int main()
 		myHedges.update(projection, view, cubeShader, cube, camera);
 
 		//myPlayer.Update(projection, view, playerShader, playerModel,camera);
-		myPlayer.setPosition(camera.Position);
-		//camera.Position = myPlayer.getPosition();
-		//camera.Position = camera.Position * glm::vec3(0.0f, 1.0f, 0.0f);
-		myPlayer.updateMovement(window, deltaTime);
 
 
 		// input
 		// -----
-		glm::vec3 prevPos = camera.Position;
-		processInput(window);
+		processInput(window, camera, myPlayer, myHedges);
 
-		auto iter = myHedges.getColliders();
-		int size = iter.size();
-
-		camera.Position.y = 0;
-		
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				glm::vec3 newPos1 = (prevPos + camera.Right / 150.0f);
-			}
-		}
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -194,19 +174,174 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges)
 {
+	CollisionDetection myCollisionChecker;
+	auto iter = myHedges.getColliders();
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+
+	float velocity = 10.f * deltaTime;
+	glm::vec3 prevPos = myPlayer.getPosition();
+	bool moveXPosition = 1;
+	bool moveZPosition = 1;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+	{
+		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Front.x * velocity,
+			myPlayer.getPosition().y, myPlayer.getPosition().z);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveXPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		newPos = glm::vec3(myPlayer.getPosition().x,
+			myPlayer.getPosition().y, camera.Position.z + camera.Front.z * velocity);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveZPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		if (moveXPosition)
+		{
+			camera.Position.x += camera.Front.x * velocity;
+		}
+		if (moveZPosition)
+		{
+			camera.Position.z += camera.Front.z * velocity;
+		}
+		myPlayer.setPosition(camera.Position);
+	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
+	{
+		prevPos = myPlayer.getPosition();
+		moveXPosition = 1;
+		moveZPosition = 1;
+		glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Front.x * velocity,
+			myPlayer.getPosition().y, myPlayer.getPosition().z);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveXPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		newPos = glm::vec3(myPlayer.getPosition().x,
+			myPlayer.getPosition().y, camera.Position.z + -camera.Front.z * velocity);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveZPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		if (moveXPosition)
+		{
+			camera.Position.x += -camera.Front.x * velocity;
+		}
+		if (moveZPosition)
+		{
+			camera.Position.z += -camera.Front.z * velocity;
+		}
+		myPlayer.setPosition(camera.Position);
+	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+	{
+		prevPos = myPlayer.getPosition();
+		moveXPosition = 1;
+		moveZPosition = 1;
+		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Right.x * velocity,
+			myPlayer.getPosition().y, myPlayer.getPosition().z);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveXPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		newPos = glm::vec3(myPlayer.getPosition().x,
+			myPlayer.getPosition().y, camera.Position.z + camera.Right.z * velocity);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveZPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		if (moveXPosition)
+		{
+			camera.Position.x += camera.Right.x * velocity;
+		}
+		if (moveZPosition)
+		{
+			camera.Position.z += camera.Right.z * velocity;
+		}
+		myPlayer.setPosition(camera.Position);
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		prevPos = myPlayer.getPosition();
+		moveXPosition = 1;
+		moveZPosition = 1;
+		glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Right.x * velocity,
+			myPlayer.getPosition().y, myPlayer.getPosition().z);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveXPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		newPos = glm::vec3(myPlayer.getPosition().x,
+			myPlayer.getPosition().y, camera.Position.z + -camera.Right.z * velocity);
+		myPlayer.setPosition(newPos);
+		for (auto it : iter)
+		{
+			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
+			{
+				moveZPosition = 0;
+				break;
+			}
+		}
+		myPlayer.setPosition(prevPos);
+		if (moveXPosition)
+		{
+			camera.Position.x += -camera.Right.x * velocity;
+		}
+		if (moveZPosition)
+		{
+			camera.Position.z += -camera.Right.z * velocity;
+		}
+		myPlayer.setPosition(camera.Position);
+	}
+
+	camera.Position.y = 1.0f;
 }
 
 
@@ -232,6 +367,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	float xoffset = xpos - lastX;
 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+	//lastXoffset = xoffset;
 
 	lastX = xpos;
 	lastY = ypos;
