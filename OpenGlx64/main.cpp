@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "MazeGenerator.h"
 #include "Camera.h"
+#include "InputProcess.h"
 
 #include <iostream>
 
@@ -26,7 +27,6 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -97,25 +97,23 @@ int main()
 	// build and compile shaders
 	// -------------------------
 	Shader cubeShader("lightInstanceVertex.shader", "lightInstanceFragment.shader");
-	Shader playerShader("modelVertex.shader", "modelFragment.shader");
 
 	// load models
 	// -----------
 	Model cube("Models/cube/cube.obj");
-	Model playerModel("Models/cube/cube.obj");
 
-	// Hedge Obj
+	// Hedge
 	Hedge myHedges(cube);
 
-	//Player Obj
-	Player myPlayer;
+	// Player
+	Player myPlayer("modelVertex.shader", "modelFragment.shader","Models/cube/cube.obj");
+
+	// Input System
+	InputProcess myinputProcess;
 
 
-	// generate a large list of semi-random model transformation matrices
-	// ------------------------------------------------------------------
-
-
-	/* we can now get data for the specific OpenGL instance we created */
+	/// we can now get data for the specific OpenGL instance we created 
+	/// we are using this to get info about our gpu and opengl versions 
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* version = glGetString(GL_VERSION);
@@ -153,13 +151,9 @@ int main()
 
 		myHedges.update(projection, view, cubeShader, cube, camera);
 
-		//myPlayer.Update(projection, view, playerShader, playerModel,camera);
-
-
 		// input
 		// -----
-		processInput(window, camera, myPlayer, myHedges);
-
+		myinputProcess.processInput(window, camera, myPlayer, myHedges, deltaTime);
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -170,178 +164,6 @@ int main()
 
 	glfwTerminate();
 	return 0;
-}
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges)
-{
-	CollisionDetection myCollisionChecker;
-	auto iter = myHedges.getColliders();
-
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-
-
-	float velocity = 10.f * deltaTime;
-	glm::vec3 prevPos = myPlayer.getPosition();
-	bool moveXPosition = 1;
-	bool moveZPosition = 1;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Front.x * velocity,
-			myPlayer.getPosition().y, myPlayer.getPosition().z);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveXPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		newPos = glm::vec3(myPlayer.getPosition().x,
-			myPlayer.getPosition().y, camera.Position.z + camera.Front.z * velocity);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveZPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		if (moveXPosition)
-		{
-			camera.Position.x += camera.Front.x * velocity;
-		}
-		if (moveZPosition)
-		{
-			camera.Position.z += camera.Front.z * velocity;
-		}
-		myPlayer.setPosition(camera.Position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		prevPos = myPlayer.getPosition();
-		moveXPosition = 1;
-		moveZPosition = 1;
-		glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Front.x * velocity,
-			myPlayer.getPosition().y, myPlayer.getPosition().z);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveXPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		newPos = glm::vec3(myPlayer.getPosition().x,
-			myPlayer.getPosition().y, camera.Position.z + -camera.Front.z * velocity);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveZPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		if (moveXPosition)
-		{
-			camera.Position.x += -camera.Front.x * velocity;
-		}
-		if (moveZPosition)
-		{
-			camera.Position.z += -camera.Front.z * velocity;
-		}
-		myPlayer.setPosition(camera.Position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		prevPos = myPlayer.getPosition();
-		moveXPosition = 1;
-		moveZPosition = 1;
-		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Right.x * velocity,
-			myPlayer.getPosition().y, myPlayer.getPosition().z);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveXPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		newPos = glm::vec3(myPlayer.getPosition().x,
-			myPlayer.getPosition().y, camera.Position.z + camera.Right.z * velocity);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveZPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		if (moveXPosition)
-		{
-			camera.Position.x += camera.Right.x * velocity;
-		}
-		if (moveZPosition)
-		{
-			camera.Position.z += camera.Right.z * velocity;
-		}
-		myPlayer.setPosition(camera.Position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		prevPos = myPlayer.getPosition();
-		moveXPosition = 1;
-		moveZPosition = 1;
-		glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Right.x * velocity,
-			myPlayer.getPosition().y, myPlayer.getPosition().z);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveXPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		newPos = glm::vec3(myPlayer.getPosition().x,
-			myPlayer.getPosition().y, camera.Position.z + -camera.Right.z * velocity);
-		myPlayer.setPosition(newPos);
-		for (auto it : iter)
-		{
-			if (myCollisionChecker.SphereRectCollision(myPlayer, it))
-			{
-				moveZPosition = 0;
-				break;
-			}
-		}
-		myPlayer.setPosition(prevPos);
-		if (moveXPosition)
-		{
-			camera.Position.x += -camera.Right.x * velocity;
-		}
-		if (moveZPosition)
-		{
-			camera.Position.z += -camera.Right.z * velocity;
-		}
-		myPlayer.setPosition(camera.Position);
-	}
-
-	camera.Position.y = 1.0f;
 }
 
 
