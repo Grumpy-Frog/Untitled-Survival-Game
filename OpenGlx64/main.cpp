@@ -17,6 +17,7 @@
 #include "InputProcess.h"
 
 #include <iostream>
+#include <conio.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -33,7 +34,7 @@ const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(-10.0f, 0.0f, 0.0f));
+Camera camera(glm::vec3(2.0f, 0.0f, 2.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -153,7 +154,12 @@ int main()
 
 		// input
 		// -----
-		myinputProcess.processInput(window, camera, myPlayer, myHedges, deltaTime);
+		int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+		if (present == 1)
+		{
+			myinputProcess.processInputGamePad(window, camera, myPlayer, myHedges, deltaTime);
+		}
+		myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime);
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

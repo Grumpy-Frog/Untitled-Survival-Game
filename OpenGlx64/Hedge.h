@@ -22,7 +22,6 @@ class Hedge
 {
 private:
 	std::vector<glm::mat4> modelMatrices;
-
 	std::vector<CubeCollider> cubeColliders;
 
 private:
@@ -54,6 +53,7 @@ private:
 						model = glm::translate(model, glm::vec3(x, y, z));
 
 						modelMatrices.push_back(model);
+
 
 						int indexY[] = { i - 1,i + 1,i,i };
 						int indexX[] = { j,j,j - 1,j + 1 };
@@ -133,6 +133,19 @@ private:
 			}
 		}
 	}
+
+	
+public:
+	std::vector<CubeCollider> getColliders() const
+	{
+		return this->cubeColliders;
+	}
+
+	std::vector<glm::mat4> getModelMatrices() const
+	{
+		return this->modelMatrices;
+	}
+
 public:
 	Hedge(Model &cube)
 	{
@@ -147,10 +160,10 @@ public:
 		// positions of the point lights
 		glm::vec3 pointLightPositions[] =
 		{
-			glm::vec3(0.7f,  0.2f,  2.0f),
-			glm::vec3(2.3f, -3.3f, -4.0f),
-			glm::vec3(-4.0f,  2.0f, -12.0f),
-			glm::vec3(0.0f,  0.0f, -3.0f)
+			glm::vec3(0.0f,  0.0f,  0.0f),
+			glm::vec3(0.0f,  0.0f,  0.0f),
+			glm::vec3(0.0f,  0.0f,  0.0f),
+			glm::vec3(0.0f,  0.0f,  0.0f)
 		};
 
 		// be sure to activate shader when setting uniforms/drawing objects
@@ -282,15 +295,7 @@ public:
 		}
 	}
 
-	std::vector<CubeCollider> getColliders()
-	{
-		return this->cubeColliders;
-	}
-
-	std::vector<glm::mat4> getModelMatrices()
-	{
-		return this->modelMatrices;
-	}
+	
 };
 
 #endif //HEDGE_H
