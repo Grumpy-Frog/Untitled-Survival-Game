@@ -28,13 +28,13 @@ public:
 	glm::vec3 getPosition() const;
 
 	void setPosition(glm::vec3& newPos);
-	
+
 	float getRadious() const;
-	
+
 	void setRadious(float& newRadious);
 
 public:
-	Player(string vertexShader, string fragmentShader, string model);
+	Player(const char* vertexShader, const char* fragmentShader, string model);
 
 	~Player();
 

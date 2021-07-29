@@ -18,6 +18,22 @@ using namespace std;
 class InputProcess
 {
 private:
+	float lastX = (float)1920.0f / 2.0f;
+	float lastY = (float)1080.0f / 2.0f;
+	float xpos = 0.0f;
+	float ypos = 0.0f;
+	double defaultAxesValue = 0.0f;
+	bool firstAxes = false;
+
+
+	//Jump variables
+	float gravity = 9.81f;
+	bool isJumping = false;
+	bool isFalling = false;
+	float jumpFriction = 0.5f;
+	float jumpVelocity = 0.0f;
+
+private:
 
 	bool checkCollision(Player& myPlayer, Hedge& myHedges)
 	{
@@ -30,6 +46,70 @@ private:
 				return false;
 			}
 		}
+	}
+
+	void MoveFront(Player& myPlayer, Camera& camera,
+		Hedge& myHedges, float velocity)
+	{
+		bool moveXPosition = 1;
+		bool moveZPosition = 1;
+		glm::vec3 prevPos = myPlayer.getPosition();
+		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Front.x * velocity,
+			myPlayer.getPosition().y, myPlayer.getPosition().z);
+		myPlayer.setPosition(newPos);
+
+		moveXPosition = checkCollision(myPlayer, myHedges);
+
+		myPlayer.setPosition(prevPos);
+
+		newPos = glm::vec3(myPlayer.getPosition().x,
+			myPlayer.getPosition().y, camera.Position.z + camera.Front.z * velocity);
+		myPlayer.setPosition(newPos);
+
+		moveZPosition = checkCollision(myPlayer, myHedges);
+
+		myPlayer.setPosition(prevPos);
+		if (moveXPosition)
+		{
+			camera.Position.x += camera.Front.x * velocity;
+		}
+		if (moveZPosition)
+		{
+			camera.Position.z += camera.Front.z * velocity;
+		}
+		myPlayer.setPosition(camera.Position);
+	}
+
+	void MoveRight(Player& myPlayer, Camera& camera,
+		Hedge& myHedges, float velocity)
+	{
+		bool moveXPosition = 1;
+		bool moveZPosition = 1;
+		glm::vec3 prevPos = myPlayer.getPosition();
+
+		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Right.x * velocity,
+			myPlayer.getPosition().y, myPlayer.getPosition().z);
+		myPlayer.setPosition(newPos);
+
+		moveXPosition = checkCollision(myPlayer, myHedges);
+
+		myPlayer.setPosition(prevPos);
+		newPos = glm::vec3(myPlayer.getPosition().x,
+			myPlayer.getPosition().y, camera.Position.z + camera.Right.z * velocity);
+		myPlayer.setPosition(newPos);
+
+		moveZPosition = checkCollision(myPlayer, myHedges);
+
+		myPlayer.setPosition(prevPos);
+		if (moveXPosition)
+		{
+			camera.Position.x += camera.Right.x * velocity;
+		}
+		if (moveZPosition)
+		{
+			camera.Position.z += camera.Right.z * velocity;
+		}
+		myPlayer.setPosition(camera.Position);
 	}
 
 public:
@@ -49,133 +129,76 @@ public:
 
 
 		float velocity = 10.f * deltaTime;
-		glm::vec3 prevPos;
-		bool moveXPosition = 1;
-		bool moveZPosition = 1;
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		
+		
+		if (this->isJumping == false && this->isFalling == false)
 		{
-			prevPos = myPlayer.getPosition();
-			glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Front.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-			
-			moveXPosition = checkCollision(myPlayer, myHedges);
-			
-			myPlayer.setPosition(prevPos);
-
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + camera.Front.z * velocity);
-			myPlayer.setPosition(newPos);
-			
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			{
-				camera.Position.x += camera.Front.x * velocity;
+				MoveFront(myPlayer, camera, myHedges, velocity);
 			}
-			if (moveZPosition)
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 			{
-				camera.Position.z += camera.Front.z * velocity;
+				MoveFront(myPlayer, camera, myHedges, -velocity);
 			}
-			myPlayer.setPosition(camera.Position);
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		{
-			prevPos = myPlayer.getPosition();
-			moveXPosition = 1;
-			moveZPosition = 1;
-			glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Front.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-			
-			moveXPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + -camera.Front.z * velocity);
-			myPlayer.setPosition(newPos);
-			
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			{
-				camera.Position.x += -camera.Front.x * velocity;
+				MoveRight(myPlayer, camera, myHedges, velocity);
 			}
-			if (moveZPosition)
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 			{
-				camera.Position.z += -camera.Front.z * velocity;
+				MoveRight(myPlayer, camera, myHedges, -velocity);
 			}
-			myPlayer.setPosition(camera.Position);
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		{
-			prevPos = myPlayer.getPosition();
-			moveXPosition = 1;
-			moveZPosition = 1;
-			glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Right.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-			
-			moveXPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + camera.Right.z * velocity);
-			myPlayer.setPosition(newPos);
-			
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
-			{
-				camera.Position.x += camera.Right.x * velocity;
-			}
-			if (moveZPosition)
-			{
-				camera.Position.z += camera.Right.z * velocity;
-			}
-			myPlayer.setPosition(camera.Position);
-		}
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		{
-			prevPos = myPlayer.getPosition();
-			moveXPosition = 1;
-			moveZPosition = 1;
-			glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Right.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-
-			moveXPosition = checkCollision(myPlayer, myHedges);
-			
-			myPlayer.setPosition(prevPos);
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + -camera.Right.z * velocity);
-			myPlayer.setPosition(newPos);
-			
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
-			{
-				camera.Position.x += -camera.Right.x * velocity;
-			}
-			if (moveZPosition)
-			{
-				camera.Position.z += -camera.Right.z * velocity;
-			}
-			myPlayer.setPosition(camera.Position);
 		}
 
-		camera.Position.y = 1.0f;
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && camera.Position.y <= 1.0f)
+		{
+			this->jumpVelocity = 10.0f;
+			this->isJumping = true;
+		}
+
+		if (this->isJumping)
+		{
+			calculateJump(camera, deltaTime);
+		}
+		else if (this->isFalling)
+		{
+			this->jumpVelocity += gravity * deltaTime;
+			camera.Position.y -= this->jumpVelocity * deltaTime;
+		}
+
+		if (camera.Position.y < 1.0f)
+		{
+			camera.Position.y = 1.0f;
+			this->isJumping = false;
+			this->isFalling = false;
+		}
 	}
+
+	void calculateJump(Camera& camera, float& deltaTime)
+	{
+		this->jumpVelocity -= gravity * deltaTime;
+		camera.Position.y += this->jumpVelocity * deltaTime;
+
+		if (camera.Position.y >= 4.0f)
+		{
+			this->jumpVelocity = 5.0f;
+			this->isJumping = false;
+			this->isFalling = true;
+		}
+	}
+
 
 
 	void processInputGamePad(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges, float deltaTime)
 	{
 		int axesCount;
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+
+		if (defaultAxesValue == 0.0f)
+		{
+			defaultAxesValue = axes[2];
+		}
 
 		///system("cls");
 		///cout << "Left X: " << axes[0] << "\n";
@@ -254,132 +277,60 @@ public:
 		*/
 
 
-
 		if (buttons[8] == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
 
 		float velocity = 10.f * deltaTime;
-		glm::vec3 prevPos;
-		bool moveXPosition = 1;
-		bool moveZPosition = 1;
-		if (axes[1] == -1.0f)
+
+		///Player Movement
+		if (axes[1] == -1.0f || GLFW_PRESS == buttons[12])
 		{
-			prevPos = myPlayer.getPosition();
-			glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Front.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-
-			moveXPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + camera.Front.z * velocity);
-			myPlayer.setPosition(newPos);
-
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
-			{
-				camera.Position.x += camera.Front.x * velocity;
-			}
-			if (moveZPosition)
-			{
-				camera.Position.z += camera.Front.z * velocity;
-			}
-			myPlayer.setPosition(camera.Position);
+			MoveFront(myPlayer, camera, myHedges, velocity);
 		}
-		if (axes[1] == 1.0f)
+		if (axes[1] == 1.0f || GLFW_PRESS == buttons[14])
 		{
-			prevPos = myPlayer.getPosition();
-			moveXPosition = 1;
-			moveZPosition = 1;
-			glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Front.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-
-			moveXPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + -camera.Front.z * velocity);
-			myPlayer.setPosition(newPos);
-
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
-			{
-				camera.Position.x += -camera.Front.x * velocity;
-			}
-			if (moveZPosition)
-			{
-				camera.Position.z += -camera.Front.z * velocity;
-			}
-			myPlayer.setPosition(camera.Position);
+			MoveFront(myPlayer, camera, myHedges, -velocity);
 		}
-		if (axes[0] == 1.0f)
+		if (axes[0] == 1.0f || GLFW_PRESS == buttons[13])
 		{
-			prevPos = myPlayer.getPosition();
-			moveXPosition = 1;
-			moveZPosition = 1;
-			glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Right.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
-
-			moveXPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + camera.Right.z * velocity);
-			myPlayer.setPosition(newPos);
-
-			moveZPosition = checkCollision(myPlayer, myHedges);
-
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
-			{
-				camera.Position.x += camera.Right.x * velocity;
-			}
-			if (moveZPosition)
-			{
-				camera.Position.z += camera.Right.z * velocity;
-			}
-			myPlayer.setPosition(camera.Position);
+			MoveRight(myPlayer, camera, myHedges, velocity);
 		}
-		if (axes[0] == -1.0f)
+		if (axes[0] == -1.0f || GLFW_PRESS == buttons[15])
 		{
-			prevPos = myPlayer.getPosition();
-			moveXPosition = 1;
-			moveZPosition = 1;
-			glm::vec3 newPos = glm::vec3(camera.Position.x + -camera.Right.x * velocity,
-				myPlayer.getPosition().y, myPlayer.getPosition().z);
-			myPlayer.setPosition(newPos);
+			MoveRight(myPlayer, camera, myHedges, -velocity);
+		}
+		//camera.Position.y = 1.0f;
 
-			moveXPosition = checkCollision(myPlayer, myHedges);
 
-			myPlayer.setPosition(prevPos);
-			newPos = glm::vec3(myPlayer.getPosition().x,
-				myPlayer.getPosition().y, camera.Position.z + -camera.Right.z * velocity);
-			myPlayer.setPosition(newPos);
+		if (axes[2] != defaultAxesValue)
+		{
+			xpos += 10.0f * axes[2];
+		}
+		if (axes[3] != defaultAxesValue)
+		{
+			ypos += 10.0f * axes[3];
+		}
+		axes_callback(camera);
 
-			moveZPosition = checkCollision(myPlayer, myHedges);
+	}
 
-			myPlayer.setPosition(prevPos);
-			if (moveXPosition)
-			{
-				camera.Position.x += -camera.Right.x * velocity;
-			}
-			if (moveZPosition)
-			{
-				camera.Position.z += -camera.Right.z * velocity;
-			}
-			myPlayer.setPosition(camera.Position);
+	void axes_callback(Camera& camera)
+	{
+		if (firstAxes)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstAxes = false;
 		}
 
-		camera.Position.y = 1.0f;
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos;
+
+		lastX = xpos;
+		lastY = ypos;
+
+		camera.ProcessMouseMovement(xoffset, yoffset);
 	}
 };
 

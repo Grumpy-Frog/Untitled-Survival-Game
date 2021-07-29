@@ -88,22 +88,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lightVertex.shader">
+    <None Include="av.shader">
       <Filter>Header Files\Shaders</Filter>
     </None>
-    <None Include="lightFragment.shader">
+    <None Include="af.shader">
       <Filter>Header Files\Shaders</Filter>
     </None>
     <None Include="modelFragment.shader">
       <Filter>Header Files\Shaders</Filter>
     </None>
     <None Include="modelVertex.shader">
-      <Filter>Header Files\Shaders</Filter>
-    </None>
-    <None Include="instanciatMatrixVertex.shader">
-      <Filter>Header Files\Shaders</Filter>
-    </None>
-    <None Include="instanciatMatrixFragment.shader">
       <Filter>Header Files\Shaders</Filter>
     </None>
     <None Include="lightInstanceVertex.shader">

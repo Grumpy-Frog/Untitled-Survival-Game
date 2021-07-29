@@ -34,21 +34,67 @@ const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(2.0f, 0.0f, 2.0f));
+Camera camera(glm::vec3(2.0f, 1.0f, 2.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
+
 
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+void processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
 
-/// <summary>
-/// USER DEFINE FUNCTIONS //////////////////////////////
-/// </summary>
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+}
 
-//float lastXoffset;
+unsigned int loadTexture(char const* path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_MIRRORED_REPEAT : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_MIRRORED_REPEAT : GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}
 
 int main()
 {
@@ -97,17 +143,16 @@ int main()
 
 	// build and compile shaders
 	// -------------------------
-	Shader cubeShader("lightInstanceVertex.shader", "lightInstanceFragment.shader");
+	Shader floor("av.shader", "af.shader");
 
 	// load models
 	// -----------
-	Model cube("Models/cube/cube.obj");
 
 	// Hedge
-	Hedge myHedges(cube);
+	Hedge myHedges("lightInstanceVertex.shader", "lightInstanceFragment.shader", "Models/Hedge/cube.obj", "Models/Ground/cube.obj");
 
 	// Player
-	Player myPlayer("modelVertex.shader", "modelFragment.shader","Models/cube/cube.obj");
+	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/cube/cube.obj");
 
 	// Input System
 	InputProcess myinputProcess;
@@ -128,7 +173,9 @@ int main()
 	printf("GL Version (integer) : %d.%d\n", major, minor);
 	printf("GLSL Version : %s\n", glslVersion);
 
+	
 
+	bool debug_mode = 1;
 
 	// render loop
 	// -----------
@@ -143,24 +190,38 @@ int main()
 
 		// render
 		// ------
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// configure transformation matrices
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 
-		myHedges.update(projection, view, cubeShader, cube, camera);
 
-		// input
-		// -----
-		int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
-		if (present == 1)
+
+		if (debug_mode)
 		{
-			myinputProcess.processInputGamePad(window, camera, myPlayer, myHedges, deltaTime);
+			//camera = camera2;
+			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+			view = camera.GetViewMatrix();
+			myHedges.update(projection, view, camera);
+			processInput(window);
 		}
-		myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime);
-
+		else
+		{
+			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+			view = camera.GetViewMatrix();
+			myHedges.update(projection, view, camera);
+			// input
+			// -----
+			int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+			if (present == 1)
+			{
+				myinputProcess.processInputGamePad(window, camera, myPlayer, myHedges, deltaTime);
+			}
+			myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime);
+		}
+		
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -171,6 +232,8 @@ int main()
 	glfwTerminate();
 	return 0;
 }
+
+
 
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -195,7 +258,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	float xoffset = xpos - lastX;
 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-	//lastXoffset = xoffset;
 
 	lastX = xpos;
 	lastY = ypos;

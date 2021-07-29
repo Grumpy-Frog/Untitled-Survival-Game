@@ -21,8 +21,13 @@ using namespace std;
 class Hedge
 {
 private:
-	std::vector<glm::mat4> modelMatrices;
+	std::vector<glm::mat4> modelMatricesHedge;
+	std::vector<glm::mat4> modelMatricesGround;
 	std::vector<CubeCollider> cubeColliders;
+
+	Shader* cubeShader;
+	Model* Hedges;
+	Model* Ground;
 
 private:
 	bool isIndexValid(int i, int j)
@@ -52,7 +57,7 @@ private:
 						model = glm::scale(model, glm::vec3(1.0f));
 						model = glm::translate(model, glm::vec3(x, y, z));
 
-						modelMatrices.push_back(model);
+						modelMatricesRef.push_back(model);
 
 
 						int indexY[] = { i - 1,i + 1,i,i };
@@ -80,6 +85,56 @@ private:
 							}
 						}
 						y--;
+					}
+				}
+			}
+		}
+	}
+
+	void PositioningModelsG(int myMazeArray[], std::vector<glm::mat4>& modelMatricesRef)
+	{
+		for (unsigned int i = 0; i < COL; i++)
+		{
+			for (unsigned int j = 0; j < COL; j++)
+			{
+				float x, y = -1.0, z;
+				x = (i * COL + j) % COL * 2.0;
+				z = (i * COL + j) / COL * 2.0;
+
+				if (myMazeArray[i * COL + j] == 0)
+				{
+					//while (y >= 0)
+					{
+						glm::mat4 model = glm::mat4(1.0f);
+						model = glm::scale(model, glm::vec3(1.0f));
+						model = glm::translate(model, glm::vec3(x, y, z));
+
+						modelMatricesRef.push_back(model);
+
+
+						glm::vec3 extraHedgePositions[] =
+						{
+							glm::vec3(x, y,z - 1.0),
+							glm::vec3(x,  y,z + 1.0),
+							glm::vec3(x - 1.0, y, z),
+							glm::vec3(x + 1.0, y, z),
+
+							glm::vec3(x + 1.0, y, z + 1.0),
+							glm::vec3(x + 1.0, y, z - 1.0),
+							glm::vec3(x - 1.0, y, z + 1.0),
+							glm::vec3(x - 1.0, y, z - 1.0)
+						};
+
+						for (unsigned int valueOfCheckingIndex = 0; valueOfCheckingIndex < 8; valueOfCheckingIndex++)
+						{
+
+							model = glm::mat4(1.0f);
+							model = glm::scale(model, glm::vec3(1.0f));
+							model = glm::translate(model, extraHedgePositions[valueOfCheckingIndex]);
+
+							modelMatricesRef.push_back(model);
+
+						}
 					}
 				}
 			}
@@ -122,7 +177,7 @@ private:
 								if (myMazeArray[indexY[valueOfCheckingIndex] * COL + indexX[valueOfCheckingIndex]] == 1)
 								{
 									CubeCollider collider(extraHedgePositions[valueOfCheckingIndex]);
-									
+
 									cubeCollidersRef.push_back(collider);
 								}
 							}
@@ -134,147 +189,163 @@ private:
 		}
 	}
 
-	
+
 public:
 	std::vector<CubeCollider> getColliders() const
 	{
 		return this->cubeColliders;
 	}
 
-	std::vector<glm::mat4> getModelMatrices() const
-	{
-		return this->modelMatrices;
-	}
-
 public:
-	Hedge(Model &cube)
+	Hedge(const char *vertexShader, const char* fragmentShader, string hedgeModel, string groundModel)
 	{
-		modelMatrices.clear();
+		modelMatricesHedge.clear();
+		modelMatricesGround.clear();
 		cubeColliders.clear();
 
-		init(cube);
+		this->cubeShader = new Shader(vertexShader, fragmentShader);
+		this->Hedges = new Model(hedgeModel);
+		this->Ground = new Model(groundModel);
+
+		init();
 	}
 
-	void update(glm::mat4& projection, glm::mat4& view,Shader &cubeShader,Model &cube,Camera &camera)
+	~Hedge()
+	{
+		cout << "Hedge destroyed\n";
+		delete this->cubeShader;
+		delete this->Hedges;
+		delete this->Ground;
+	}
+
+	void update(glm::mat4& projection, glm::mat4& view, Camera& camera)
 	{
 		// positions of the point lights
 		glm::vec3 pointLightPositions[] =
 		{
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(0.0f,  0.0f,  0.0f)
+			glm::vec3(5000.0f,  0.0f,  0.0f),
+			glm::vec3(5000.0f,  0.0f,  0.0f),
+			glm::vec3(5000.0f,  0.0f,  0.0f),
+			glm::vec3(5000.0f,  0.0f,  0.0f)
 		};
 
 		// be sure to activate shader when setting uniforms/drawing objects
-		cubeShader.use();
+
+		this->cubeShader->use();
 		//myShader.setVec3("light.direction", -1.0f, -1.0f, -1.0f);
-		cubeShader.setVec3("viewPos", camera.Position);
-		cubeShader.setVec3("light.position", camera.Position);
+		this->cubeShader->setVec3("viewPos", camera.Position);
+		this->cubeShader->setVec3("light.position", camera.Position);
 
 		// directional light
-		cubeShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-		cubeShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
-		cubeShader.setVec3("dirLight.specular", 1.5f, 1.5f, 1.5f);
+		this->cubeShader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+		this->cubeShader->setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+		this->cubeShader->setVec3("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setVec3("dirLight.specular", 1.5f, 1.5f, 1.5f);
 
 		// point light 1
-		cubeShader.setVec3("pointLights[0].position", pointLightPositions[0]);
-		cubeShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.setFloat("pointLights[0].constant", 1.0f);
-		cubeShader.setFloat("pointLights[0].linear", 0.09);
-		cubeShader.setFloat("pointLights[0].quadratic", 0.032);
+		this->cubeShader->setVec3("pointLights[0].position", pointLightPositions[0]);
+		this->cubeShader->setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+		this->cubeShader->setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+		this->cubeShader->setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setFloat("pointLights[0].constant", 1.0f);
+		this->cubeShader->setFloat("pointLights[0].linear", 0.09);
+		this->cubeShader->setFloat("pointLights[0].quadratic", 0.032);
 		// point light 2
-		cubeShader.setVec3("pointLights[1].position", pointLightPositions[1]);
-		cubeShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.setFloat("pointLights[1].constant", 1.0f);
-		cubeShader.setFloat("pointLights[1].linear", 0.09);
-		cubeShader.setFloat("pointLights[1].quadratic", 0.032);
+		this->cubeShader->setVec3("pointLights[1].position", pointLightPositions[1]);
+		this->cubeShader->setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+		this->cubeShader->setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+		this->cubeShader->setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setFloat("pointLights[1].constant", 1.0f);
+		this->cubeShader->setFloat("pointLights[1].linear", 0.09);
+		this->cubeShader->setFloat("pointLights[1].quadratic", 0.032);
 		// point light 3
-		cubeShader.setVec3("pointLights[2].position", pointLightPositions[2]);
-		cubeShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.setFloat("pointLights[2].constant", 1.0f);
-		cubeShader.setFloat("pointLights[2].linear", 0.09);
-		cubeShader.setFloat("pointLights[2].quadratic", 0.032);
+		this->cubeShader->setVec3("pointLights[2].position", pointLightPositions[2]);
+		this->cubeShader->setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+		this->cubeShader->setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+		this->cubeShader->setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setFloat("pointLights[2].constant", 1.0f);
+		this->cubeShader->setFloat("pointLights[2].linear", 0.09);
+		this->cubeShader->setFloat("pointLights[2].quadratic", 0.032);
 		// point light 4
-		cubeShader.setVec3("pointLights[3].position", pointLightPositions[3]);
-		cubeShader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
-		cubeShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
-		cubeShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.setFloat("pointLights[3].constant", 1.0f);
-		cubeShader.setFloat("pointLights[3].linear", 0.09);
-		cubeShader.setFloat("pointLights[3].quadratic", 0.032);
+		this->cubeShader->setVec3("pointLights[3].position", pointLightPositions[3]);
+		this->cubeShader->setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+		this->cubeShader->setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+		this->cubeShader->setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setFloat("pointLights[3].constant", 1.0f);
+		this->cubeShader->setFloat("pointLights[3].linear", 0.09);
+		this->cubeShader->setFloat("pointLights[3].quadratic", 0.032);
 
 		// spotLight
-		cubeShader.setVec3("spotLight.position", camera.Position);
-		cubeShader.setVec3("spotLight.direction", camera.Front);
-		cubeShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-		cubeShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-		cubeShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.setFloat("spotLight.constant", 1.0f);
-		cubeShader.setFloat("spotLight.linear", 0.09);
-		cubeShader.setFloat("spotLight.quadratic", 0.032);
-		cubeShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(10.0f)));
-		cubeShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+		this->cubeShader->setVec3("spotLight.position", camera.Position);
+		this->cubeShader->setVec3("spotLight.direction", camera.Front);
+		this->cubeShader->setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+		this->cubeShader->setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+		this->cubeShader->setFloat("spotLight.constant", 1.0f);
+		this->cubeShader->setFloat("spotLight.linear", 0.09);
+		this->cubeShader->setFloat("spotLight.quadratic", 0.032);
+		this->cubeShader->setFloat("spotLight.cutOff", glm::cos(glm::radians(10.0f)));
+		this->cubeShader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
-		cubeShader.setInt("material.diffuse", 0);
-		cubeShader.setInt("material.specular", 1);
-		cubeShader.setInt("material.emission", 2);
-		cubeShader.setFloat("material.shininess", 64.0f);
+		this->cubeShader->setInt("material.diffuse", 0);
+		this->cubeShader->setInt("material.specular", 1);
+		this->cubeShader->setInt("material.emission", 2);
+		this->cubeShader->setFloat("material.shininess", 64.0f);
 
-		updateRender(projection, view, cubeShader, cube);
+		updateRender(projection, view, modelMatricesHedge, *Hedges);
+		updateRender(projection, view, modelMatricesGround, *Ground);
 	}
 
-	void updateRender(glm::mat4& projection, glm::mat4& view,Shader &cubeShader, Model &cube)
+	void updateRender(glm::mat4& projection, glm::mat4& view, std::vector<glm::mat4>& modelMatricesRef, Model& modelRef)
 	{
-		cubeShader.use();
-		cubeShader.setMat4("projection", projection);
-		cubeShader.setMat4("view", view);
+		this->cubeShader->use();
+		this->cubeShader->setMat4("projection", projection);
+		this->cubeShader->setMat4("view", view);
 
-
-		// draw cube
-		cubeShader.use();
-		cubeShader.setInt("texture_diffuse1", 0);
+		// draw modelRef
+		this->cubeShader->use();
+		this->cubeShader->setInt("texture_diffuse1", 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cube.textures_loaded[0].id); // note: we also made the textures_loaded vector public (instead of private) from the model class.
-		for (unsigned int i = 0; i < cube.meshes.size(); i++)
+		glBindTexture(GL_TEXTURE_2D, modelRef.textures_loaded[0].id); // note: we also made the textures_loaded vector public (instead of private) from the model class.
+		for (unsigned int i = 0; i < modelRef.meshes.size(); i++)
 		{
-			glBindVertexArray(cube.meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, cube.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, modelMatrices.size());
+			glBindVertexArray(modelRef.meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, modelRef.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, modelMatricesRef.size());
 			glBindVertexArray(0);
 		}
 	}
 
-	void init(Model &cube)
+	void init()
 	{
 		Maze myMazeObj;
 		myMazeObj.generateMaze();
 		int* myMazeArray = myMazeObj.getMaze();
 		//MazeRenderFunctions::
-		PositioningModels(myMazeArray, modelMatrices);
+		PositioningModels(myMazeArray, modelMatricesHedge);
+		PositioningModelsG(myMazeArray, modelMatricesGround);
 		PositioningColliders(myMazeArray, cubeColliders);
-		
+
 		// configure instanced array
-	    // -------------------------
+		// -------------------------
+		instance(modelMatricesHedge, *Hedges);
+		instance(modelMatricesGround, *Ground);
+	}
+
+	void instance(std::vector<glm::mat4>& modelMatricesRef, Model& modelRef)
+	{
 		unsigned int buffer;
 		glGenBuffers(1, &buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, modelMatricesRef.size() * sizeof(glm::mat4), &modelMatricesRef[0], GL_STATIC_DRAW);
 
 
 		// set transformation matrices as an instance vertex attribute (with divisor 1)
 		// note: we're cheating a little by taking the, now publicly declared, VAO of the model's mesh(es) and adding new vertexAttribPointers
 		// normally you'd want to do this in a more organized fashion, but for learning purposes this will do.
 		// -----------------------------------------------------------------------------------------------------------------------------------
-		for (unsigned int i = 0; i < cube.meshes.size(); i++)
+		for (unsigned int i = 0; i < modelRef.meshes.size(); i++)
 		{
-			unsigned int VAO = cube.meshes[i].VAO;
+			unsigned int VAO = modelRef.meshes[i].VAO;
 			glBindVertexArray(VAO);
 			// set attribute pointers for matrix (4 times vec4)
 			glEnableVertexAttribArray(3);
@@ -295,7 +366,6 @@ public:
 		}
 	}
 
-	
 };
 
 #endif //HEDGE_H

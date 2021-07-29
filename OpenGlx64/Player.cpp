@@ -24,11 +24,11 @@ void Player::setRadious(float& newRadious)
 
 
 // public funtions
-Player::Player(string vertexShader, string fragmentShader, string model)
+Player::Player(const char* vertexShader, const char* fragmentShader, string model)
 {
 	this->playerPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->playerRadious = 0.0005f;
-	this->playerShader = new Shader("modelVertex.shader", "modelFragment.shader");
+	this->playerShader = new Shader(vertexShader, fragmentShader);
 	this->playerModel = new Model("Models/cube/cube.obj");
 }
 

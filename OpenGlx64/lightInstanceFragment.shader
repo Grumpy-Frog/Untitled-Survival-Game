@@ -1,13 +1,15 @@
 #version 330 core
 out vec4 FragCOLor;
 
-struct Material {
+struct Material 
+{
     sampler2D diffuse;
     sampler2D specular;
     float shininess;
 };
 
-struct DirLight {
+struct DirLight 
+{
     vec3 direction;
 
     vec3 ambient;
@@ -15,7 +17,8 @@ struct DirLight {
     vec3 specular;
 };
 
-struct PointLight {
+struct PointLight 
+{
     vec3 position;
 
     float constant;
@@ -27,7 +30,8 @@ struct PointLight {
     vec3 specular;
 };
 
-struct SpotLight {
+struct SpotLight 
+{
     vec3 position;
     vec3 direction;
     float cutOff;
@@ -55,7 +59,7 @@ uniform SpotLight spotLight;
 uniform Material material;
 
 float near = 0.1;
-float far = 250.0;
+float far = 100.0;
 
 float LinearizeDepth(float depth)
 {
@@ -88,9 +92,9 @@ void main()
     // phase 3: spot light
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
-    //float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
 
-    //result -= vec3(depth);
+    result -= vec3(depth);
 
     vec4 textureCOLour = texture(material.diffuse, TexCoords);
     if (textureCOLour.a < 0.5) {

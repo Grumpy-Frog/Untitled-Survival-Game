@@ -42,12 +42,10 @@
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="instanciatMatrixFragment.shader" />
-    <None Include="instanciatMatrixVertex.shader" />
-    <None Include="lightFragment.shader" />
+    <None Include="af.shader" />
     <None Include="lightInstanceFragment.shader" />
     <None Include="lightInstanceVertex.shader" />
-    <None Include="lightVertex.shader" />
+    <None Include="av.shader" />
     <None Include="modelFragment.shader" />
     <None Include="modelVertex.shader" />
   </ItemGroup>
