@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CubeCollider.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Hedge.cpp" />
     <ClCompile Include="InputProcess.cpp" />
     <ClCompile Include="main.cpp" />
@@ -29,10 +31,13 @@
     <ClCompile Include="model.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="TexGen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CubeCollider.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Hedge.h" />
     <ClInclude Include="InputProcess.h" />
     <ClInclude Include="MazeGenerator.h" />
@@ -40,6 +45,7 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="TexGen.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="af.shader" />
@@ -110,9 +116,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\Hp\AppData\Local\Programs\Python\Python39\include;$(SolutionDir)Dependences\pybind11-2.7.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Hp\AppData\Local\Programs\Python\Python39\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\Hp\AppData\Local\Programs\Python\Python39\include;$(SolutionDir)Dependences\pybind11-2.7.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Hp\AppData\Local\Programs\Python\Python39\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -149,12 +159,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependences\SOIL2\include;$(SolutionDir)Dependences\GLM\include;$(SolutionDir)Dependences\GLEW\include;$(SolutionDir)Dependences\ASSIMP\include;$(SolutionDir)Dependences\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependences\SOIL2\lib;$(SolutionDir)Dependences\GLEW\lib\Release\x64;$(SolutionDir)Dependences\ASSIMP\lib;$(SolutionDir)Dependences\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc142-mtd.lib;glew32.lib;SOIL.lib;soil2-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc142-mtd.lib;glew32.lib;SOIL.lib;soil2-debug.lib;python39_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -166,6 +177,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependences\SOIL2\include;$(SolutionDir)Dependences\GLM\include;$(SolutionDir)Dependences\GLEW\include;$(SolutionDir)Dependences\ASSIMP\include;$(SolutionDir)Dependences\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,7 +185,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependences\SOIL2\lib;$(SolutionDir)Dependences\GLEW\lib\Release\x64;$(SolutionDir)Dependences\ASSIMP\lib;$(SolutionDir)Dependences\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc142-mtd.lib;glew32.lib;SOIL.lib;soil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc142-mtd.lib;glew32.lib;SOIL.lib;soil2.lib;python39.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

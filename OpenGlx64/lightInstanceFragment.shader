@@ -59,7 +59,7 @@ uniform SpotLight spotLight;
 uniform Material material;
 
 float near = 0.1;
-float far = 100.0;
+float far = 200.0;
 
 float LinearizeDepth(float depth)
 {
@@ -94,7 +94,8 @@ void main()
 
     float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
 
-    result -= vec3(depth);
+    //darkness
+    //result -= vec3(depth);
 
     vec4 textureCOLour = texture(material.diffuse, TexCoords);
     if (textureCOLour.a < 0.5) {

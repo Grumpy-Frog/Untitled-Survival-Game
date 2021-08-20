@@ -2,7 +2,6 @@
 #define MODEL_H
 
 #include <GL/glew.h>
-
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <stb_image.h>

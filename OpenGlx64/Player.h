@@ -1,44 +1,91 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <glm.hpp>
-#include <gtc\matrix_transform.hpp>
-
-#include <string>
-#include <vector>
-
-#include "Shader.h"
-#include "model.h"
-#include "Mesh.h"
-#include "Camera.h"
-
+#include "Entity.h"
+#include "MazeGenerator.h"
 using namespace std;
 
-
-class Player
+class Player : public Entity
 {
 private:
-	glm::vec3 playerPosition;
-	float playerRadious;
+	int* myMaze;
+	int* tempMaze;
 
-	Shader* playerShader;
-	Model* playerModel;
-
-public:
-	glm::vec3 getPosition() const;
-
-	void setPosition(glm::vec3& newPos);
-
-	float getRadious() const;
-
-	void setRadious(float& newRadious);
+private:
+	int prev_i = 1;
+	int prev_j = 1;
 
 public:
-	Player(const char* vertexShader, const char* fragmentShader, string model);
+	
+
+public:
+	Player(const char* vertexShader, const char* fragmentShader, string model, int* maze);
 
 	~Player();
 
-	void Render(glm::mat4& projection, glm::mat4& view, Camera& camera);
+	void Update()
+	{
+		
+	}
+
+	void printPos()
+	{
+		cout
+			<< int(glm::round(this->getPosition().x)) / 2 << " "
+			<< int(glm::round(this->getPosition().z)) / 2 << "\n";
+	}
+
+	glm::vec2 change_maze_according_to_player_pos()
+	{
+		int i = int(glm::round(this->getPosition().z)) / 2;
+		int j = int(glm::round(this->getPosition().x)) / 2;
+
+		if (i != prev_i || j != prev_j)
+		{
+			myMaze[prev_i * COL + prev_j] = tempMaze[prev_i * COL + prev_j];
+		}
+
+		if ((i != 0 && i != COL - 1) && (j != 0 && j != COL - 1))
+		{
+			prev_i = i;
+			prev_j = j;
+			//myMaze[i * COL + j] = 5;
+		}
+
+		return glm::vec2(prev_i, prev_j);
+	}
+
+	void processInput(GLFWwindow* window)
+	{
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			glm::vec3 pos = this->getPosition();
+			pos.x += 0.01f;
+			this->setPosition(pos);
+			//printPos();
+		}
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			glm::vec3 pos = this->getPosition();
+			pos.x -= 0.01f;
+			this->setPosition(pos);
+			//printPos();
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			glm::vec3 pos = this->getPosition();
+			pos.z -= 0.01f;
+			this->setPosition(pos);
+			//printPos();
+		}
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			glm::vec3 pos = this->getPosition();
+			pos.z += 0.01f;
+			this->setPosition(pos);
+			//printPos();
+		}
+	}
 };
 
 #endif //PLAYER_H

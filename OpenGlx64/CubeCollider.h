@@ -7,7 +7,14 @@
 
 #include "Player.h"
 
+#include <cmath>
 #include <vector>
+#include <random>
+#include <utility>
+#include <iomanip>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
 
 class CubeCollider 
 {
@@ -64,5 +71,8 @@ public:
 		return (cornerDistance_sq < (sphere.getRadious() * sphere.getRadious()));
 	}
 };
+
+
+
 
 #endif //CUBECOLLIDER_H

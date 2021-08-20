@@ -1,4 +1,3 @@
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 //#include <stb_image.h>
@@ -8,6 +7,7 @@
 #include <gtc/type_ptr.hpp>
 
 #include "Player.h"
+#include "Enemy.h"
 #include "Hedge.h"
 #include "Shader.h"
 #include "model.h"
@@ -15,6 +15,7 @@
 #include "MazeGenerator.h"
 #include "Camera.h"
 #include "InputProcess.h"
+
 
 #include <iostream>
 #include <conio.h>
@@ -143,16 +144,44 @@ int main()
 
 	// build and compile shaders
 	// -------------------------
-	Shader floor("av.shader", "af.shader");
-
 	// load models
 	// -----------
-
 	// Hedge
 	Hedge myHedges("lightInstanceVertex.shader", "lightInstanceFragment.shader", "Models/Hedge/cube.obj", "Models/Ground/cube.obj");
+	int* myMazeArray;
+	myMazeArray = myHedges.getMazeArray();
+
+	/*
+	for (unsigned int i = 0; i < COL; i++)
+	{
+		for (unsigned int j = 0; j < COL; j++)
+		{
+			cout << myMazeArray[i * COL + j] << " ";
+		}
+		cout << "\n";
+	}
+	*/
+
 
 	// Player
-	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/cube/cube.obj");
+	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
+		myMazeArray);
+
+
+	vector<Enemy>myEnemies;
+	glm::vec3 x[3] = { glm::vec3(62.0f, 0.0f, 62.0f) ,
+					   glm::vec3(2.0f, 0.0f, 62.0f) ,
+					   glm::vec3(62.0f, 0.0f, 2.0f) };
+	for (int i = 0; i < 3; i++)
+	{
+		Enemy  myEnemy1("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
+			x[i], 1, &deltaTime,
+			&myPlayer, myMazeArray);
+		myEnemies.push_back(myEnemy1);
+	}
+
+
+
 
 	// Input System
 	InputProcess myinputProcess;
@@ -173,9 +202,37 @@ int main()
 	printf("GL Version (integer) : %d.%d\n", major, minor);
 	printf("GLSL Version : %s\n", glslVersion);
 
-	
+	/// <summary>
+	/// Shadow//////////////////////////////
+	/// </summary>
+	/// <returns></returns>
+	// configure depth map FBO
+	// -----------------------
+	//Shader simpleDepthShader("3.1.3.shadow_mapping_depthVS.shader", "3.1.3.shadow_mapping_depthFS.shader");
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+	// create depth texture
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	///////////////////////////////////////////////////////////////////////////
 
 	bool debug_mode = 1;
+
 
 	// render loop
 	// -----------
@@ -186,7 +243,6 @@ int main()
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
 
 		// render
 		// ------
@@ -205,13 +261,70 @@ int main()
 			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 			view = camera.GetViewMatrix();
 			myHedges.update(projection, view, camera);
+			myPlayer.Render(projection, view, camera);
+			myPlayer.processInput(window);
+			myPlayer.Update();
+
+			for (int i = 0; i < 3; i++)
+			{
+				myEnemies[i].Render(projection, view, camera);
+				myEnemies[i].Update();
+			}
+
+
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+			{
+				system("cls");
+				for (unsigned int i = 0; i < COL; i++)
+				{
+					for (unsigned int j = 0; j < COL; j++)
+					{
+						cout << myMazeArray[i * COL + j] << " ";
+					}
+					cout << "\n";
+				}
+			}
+			camera.Position.x = 28.8f;
+			camera.Position.y = 88.0f;
+			camera.Position.z = 36.0f;
+			camera.Front.x = 0.0174524f;
+			camera.Front.y = -0.999848f;
+			camera.Front.z = 7.71616e-11f;
 			processInput(window);
+
 		}
 		else
 		{
+			/// <summary>
+			/// temp
+			/// </summary>
+			/// <returns></returns>
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+			{
+				system("cls");
+				for (unsigned int i = 0; i < COL; i++)
+				{
+					for (unsigned int j = 0; j < COL; j++)
+					{
+						cout << myMazeArray[i * COL + j] << " ";
+					}
+					cout << "\n";
+				}
+			}
+			for (auto it : myEnemies)
+			{
+				it.Render(projection, view, camera);
+				it.Update();
+			}
+			/// <summary>
+			/// temp
+			/// </summary>
+			/// <returns></returns>
 			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 			view = camera.GetViewMatrix();
 			myHedges.update(projection, view, camera);
+			myPlayer.Update();
+
 			// input
 			// -----
 			int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
@@ -221,7 +334,7 @@ int main()
 			}
 			myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime);
 		}
-		
+
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------

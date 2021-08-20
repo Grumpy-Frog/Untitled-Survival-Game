@@ -2,7 +2,15 @@
 #define HEDGE_H
 
 #include <string>
+#include <cmath>
 #include <vector>
+#include <random>
+#include <utility>
+#include <iomanip>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
+#include <Windows.h>
 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -14,6 +22,8 @@
 #include "MazeGenerator.h"
 #include "Camera.h"
 #include "CubeCollider.h"
+#include "TexGen.h"
+//#include "TextureGenerator.h"
 
 using namespace std;
 
@@ -28,6 +38,8 @@ private:
 	Shader* cubeShader;
 	Model* Hedges;
 	Model* Ground;
+
+	int* myMazeArray;
 
 private:
 	bool isIndexValid(int i, int j)
@@ -49,6 +61,10 @@ private:
 				x = (i * COL + j) % COL * 2.0;
 				z = (i * COL + j) / COL * 2.0;
 
+				/*if (myMazeArray[i * COL + j] == 0)
+				{
+					cout << x << " " << z << "\n";
+				}*/
 				if (myMazeArray[i * COL + j] == 1)
 				{
 					while (y >= 0)
@@ -190,20 +206,45 @@ private:
 	}
 
 
+
 public:
 	std::vector<CubeCollider> getColliders() const
 	{
 		return this->cubeColliders;
 	}
 
+	int* getMazeArray() const
+	{
+		return this->myMazeArray;
+	}
+
 public:
-	Hedge(const char *vertexShader, const char* fragmentShader, string hedgeModel, string groundModel)
+	Hedge(const char* vertexShader, const char* fragmentShader, string hedgeModel, string groundModel)
 	{
 		modelMatricesHedge.clear();
 		modelMatricesGround.clear();
 		cubeColliders.clear();
 
 		this->cubeShader = new Shader(vertexShader, fragmentShader);
+
+		/// Generate Texture for hedge and ground
+		TexGen textureGenerator;
+		textureGenerator.del();
+		auto ground = textureGenerator.ground();
+		textureGenerator.actual_visualization_function(ground, false);
+
+		auto hedge = textureGenerator.hedge();
+		textureGenerator.actual_visualization_function(hedge, true);
+		system("start hedge.exe");
+		system("start ground.exe");
+
+		float time = 55.0f;
+		while (time > 0.0f)
+		{
+			time -= 1.0f;
+			system("cls");
+		}
+
 		this->Hedges = new Model(hedgeModel);
 		this->Ground = new Model(groundModel);
 
@@ -302,6 +343,9 @@ public:
 		this->cubeShader->setMat4("projection", projection);
 		this->cubeShader->setMat4("view", view);
 
+		//shadow
+		this->cubeShader->setInt("shadowMap", 1);
+
 		// draw modelRef
 		this->cubeShader->use();
 		this->cubeShader->setInt("texture_diffuse1", 0);
@@ -319,7 +363,16 @@ public:
 	{
 		Maze myMazeObj;
 		myMazeObj.generateMaze();
-		int* myMazeArray = myMazeObj.getMaze();
+		int* temp = myMazeObj.getMaze();
+		myMazeArray = new int[COL * COL];
+		for (unsigned int i = 0; i < COL; i++)
+		{
+			for (unsigned int j = 0; j < COL; j++)
+			{
+				myMazeArray[i * COL + j] = temp[i * COL + j];
+			}
+		}
+
 		//MazeRenderFunctions::
 		PositioningModels(myMazeArray, modelMatricesHedge);
 		PositioningModelsG(myMazeArray, modelMatricesGround);
