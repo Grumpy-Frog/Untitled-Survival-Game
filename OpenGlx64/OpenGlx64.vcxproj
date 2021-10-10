@@ -40,6 +40,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Hedge.h" />
     <ClInclude Include="InputProcess.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="model.h" />

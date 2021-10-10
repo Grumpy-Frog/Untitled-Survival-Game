@@ -12,9 +12,11 @@
 #include <algorithm>
 #include <Windows.h>
 
+
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+
 
 #include "Shader.h"
 #include "model.h"
@@ -363,6 +365,7 @@ public:
 	{
 		Maze myMazeObj;
 		myMazeObj.generateMaze();
+		myMazeObj.manipulate();
 		int* temp = myMazeObj.getMaze();
 		myMazeArray = new int[COL * COL];
 		for (unsigned int i = 0; i < COL; i++)

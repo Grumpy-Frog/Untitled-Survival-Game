@@ -243,69 +243,131 @@ private:
 	float timePassed = 0.0f;
 	Node* currentNode;
 	bool aaa = 1;
+	bool isActive = false;
 
+	vector<string>animation;
+	int animIter = 0;
+	vector<Model>animModels;
+	int counter = 0;
+
+	double getDistance(glm::vec3 p1, glm::vec3 p2)
+	{
+		return abs(sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y) + (p1.z - p2.z) * (p1.z - p2.z)));
+	}
 
 	void calculatePlayer()
 	{
-		if (timePassed > 0.30f)
+		if (isActive)
 		{
-			if (aaa)
+			if (timePassed > 0.30f)
 			{
-				glm::vec2 enemyIndex;
-				enemyIndex.y = round(this->getIndex().x);
-				enemyIndex.x = round(this->getIndex().y);
-				aStar->Update(enemyIndex);
-				currentNode = aStar->endNode;
-				aaa = 1;
-			}
-			if ((round(this->getIndex().y) * 2 == (currentNode->x * 2.0f)) &&
-				(round(this->getIndex().x) * 2 == (currentNode->y * 2.0f)))
-			{
-				glm::vec3 t = glm::vec3(round(this->getIndex().x) * 2, 0.0f, round(this->getIndex().y) * 2);
-				this->setPosition(t);
-
-				int x;
-				int z;
-				if (currentNode != aStar->startNode && currentNode != nullptr)
+				if (aaa)
 				{
-					x = round(this->getIndex().y) * 2;
-					z = round(this->getIndex().x) * 2;
+					glm::vec2 enemyIndex;
+					enemyIndex.y = round(this->getIndex().x);
+					enemyIndex.x = round(this->getIndex().y);
+					aStar->Update(enemyIndex);
+					currentNode = aStar->endNode;
+					aaa = 1;
+				}
+				if ((round(this->getIndex().y) * 2 == (currentNode->x * 2.0f)) &&
+					(round(this->getIndex().x) * 2 == (currentNode->y * 2.0f)))
+				{
+					glm::vec3 t = glm::vec3(round(this->getIndex().x) * 2, 0.0f , round(this->getIndex().y) * 2);
+					t.y = -0.4f;
+					this->setPosition(t);
 
-
-					currentNode = currentNode->parent;
-					if (currentNode != nullptr)
+					int x;
+					int z;
+					if (currentNode != aStar->startNode && currentNode != nullptr)
 					{
-						posDiff = glm::vec3((currentNode->y * 2.0f) - z, 0.0f, (currentNode->x * 2.0f) - x);
-						/*cout << currentNode->x * 2.0f << " ";
-						cout << currentNode->y * 2.0f << "| ";
-						cout << round(this->getPosition().z) << " ";
-						cout << round(this->getPosition().x) << "| ";
-						cout << x << " ";
-						cout << z << "\n";*/
+						x = round(this->getIndex().y) * 2;
+						z = round(this->getIndex().x) * 2;
+
+
+						currentNode = currentNode->parent;
+						if (currentNode != nullptr)
+						{
+							posDiff = glm::vec3((currentNode->y * 2.0f) - z, 0.0f , (currentNode->x * 2.0f) - x);
+
+							/*cout << currentNode->x * 2.0f << " ";
+							cout << currentNode->y * 2.0f << "| ";
+							cout << round(this->getPosition().z) << " ";
+							cout << round(this->getPosition().x) << "| ";
+							cout << x << " ";
+							cout << z << "\n";*/
+						}
 					}
 				}
+				timePassed = 0.0f;
+				
 			}
-			timePassed = 0.0f;
+			else
+			{
+				glm::vec3 temp = this->getPosition();
+				temp += posDiff * (this->velocity * (*this->deltaTime));
+				/*temp += posDiff;
+				posDiff = glm::vec3(0, 0, 0);*/
+
+				if (posDiff.x == 0.0f && posDiff.z == -2.0f)
+				{
+					angle = 180.0f;
+				}
+				else if (posDiff.x == 0.0f && posDiff.z == 2.0f)
+				{
+					angle = 0.0f;
+				}
+				else if (posDiff.x == 2.0f && posDiff.z == 0.0f)
+				{
+					angle = 90.0f;
+				}
+				else if (posDiff.x == -2.0f && posDiff.z == 0.0f)
+				{
+					angle = 270.0f;
+				}
+				//cout << posDiff.x << " " << posDiff.z << "\n";
+
+				temp.y = -0.4f;
+				this->setPosition(temp);
+			}
+			this->timePassed += *this->deltaTime;
+			
+			animate();
+			
 		}
 		else
 		{
-			glm::vec3 temp = this->getPosition();
-			temp += posDiff * (this->velocity * (*this->deltaTime));
-			/*temp += posDiff;
-			posDiff = glm::vec3(0, 0, 0);*/
-			this->setPosition(temp);
+			if (getDistance(myPlayer_ptr->getPosition(), this->getPosition())<=15.0f && myPlayer_ptr->getJumpStatus())
+			{
+				this->isActive = true;
+			}
 		}
-		this->timePassed += *this->deltaTime;
 	}
 
 private:
-
+	void animate()
+	{
+		if (counter >= 10)
+		{
+			setModel(&animModels[animIter]);
+			animIter++;
+			if (animIter >= animModels.size())
+			{
+				this->animIter = 1;
+			}
+			counter = 0;
+		}
+		else
+		{
+			counter++;
+		}
+	}
 
 public:
-	Enemy(const char* vertexShader, const char* fragmentShader, string model,
+	Enemy(const char* vertexShader, const char* fragmentShader, vector<string>&model,
 		glm::vec3 position, int id, float* dlTime,
 		Player* player_ptr, int* maze)
-		: Entity(vertexShader, fragmentShader, model)
+		: Entity(vertexShader, fragmentShader, model[0], glm::vec3(0.60f, 0.60f, 0.60f))
 	{
 		this->myPlayer_ptr = player_ptr;
 		this->aStar = new A_Star_Path(player_ptr, maze);
@@ -314,11 +376,29 @@ public:
 		this->setPosition(position);
 		this->setMaze();
 		this->setId(id);
+		setAnimation(model);
 	}
+	// deep copy
+	/*
+	Enemy(const Enemy& other)
+	{
+		this->myPlayer_ptr = other.myPlayer_ptr;
+		this->aStar = new A_Star_Path(other.myPlayer_ptr, other.myMaze);
+		this->myMaze = other.myMaze;
+		this->deltaTime = other.deltaTime;
+		this->position = other.position;
+		this->setMaze();
+		this->setId(other.getId());
+		this->myShader = other.myShader;
+		this->myModel = other.myModel;
+	}
+	*/
+
 	~Enemy()
 	{
 
 	}
+
 
 	void Update()
 	{
@@ -348,5 +428,29 @@ public:
 		}
 	}
 
+	void setActive(bool active = true)
+	{
+		this->isActive = active;
+	}
+
+	bool getActive()
+	{
+		return this->isActive;
+	}
+
+	void setAnimation(vector<string>& s)
+	{
+		this->animation = s;
+	}
+
+	void setAnimModel()
+	{
+		for (int i = 0; i < animation.size(); i++)
+		{
+			Model temp(animation[i]);
+			animModels.push_back(temp);
+		}
+		//cout << animModels.size() << endl;
+	}
 };
 

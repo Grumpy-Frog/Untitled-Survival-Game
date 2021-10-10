@@ -2,9 +2,11 @@
 #include <GLFW/glfw3.h>
 //#include <stb_image.h>
 
+
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+
 
 #include "Player.h"
 #include "Enemy.h"
@@ -15,6 +17,7 @@
 #include "MazeGenerator.h"
 #include "Camera.h"
 #include "InputProcess.h"
+#include "Math.h"
 
 
 #include <iostream>
@@ -33,6 +36,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 // settings
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
+
 
 // camera
 Camera camera(glm::vec3(2.0f, 1.0f, 2.0f));
@@ -97,6 +101,8 @@ unsigned int loadTexture(char const* path)
 	return textureID;
 }
 
+
+
 int main()
 {
 	// glfw: initialize and configure
@@ -113,7 +119,12 @@ int main()
 	// glfw window creation
 	// --------------------
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Untitled Survival Game", monitor, NULL);
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Untitled Survival Game", monitor, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -165,18 +176,27 @@ int main()
 
 	// Player
 	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
-		myMazeArray);
+		myMazeArray, 7.5f);
 
-
+	//Enemy
 	vector<Enemy>myEnemies;
-	glm::vec3 x[3] = { glm::vec3(62.0f, 0.0f, 62.0f) ,
-					   glm::vec3(2.0f, 0.0f, 62.0f) ,
-					   glm::vec3(62.0f, 0.0f, 2.0f) };
+	glm::vec3 x[3] = { glm::vec3(62.0f, -0.4f, 62.0f) ,
+					   glm::vec3(2.0f, -0.4f, 2.0f) ,
+					   glm::vec3(62.0f, -0.4f, 2.0f) };
+	vector<string>animationsModelNames;
+	string modelName = "Models/CreeperForMaze/c1.obj";
+	for (int i = 1; i < 6; i++)
+	{
+		modelName[modelName.size() - 5] = (char)(i + '0');
+		animationsModelNames.push_back(modelName);
+	}
+
 	for (int i = 0; i < 3; i++)
 	{
-		Enemy  myEnemy1("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
+		Enemy  myEnemy1("modelVertex.shader", "modelFragment.shader", animationsModelNames,
 			x[i], 1, &deltaTime,
 			&myPlayer, myMazeArray);
+		myEnemy1.setAnimModel();
 		myEnemies.push_back(myEnemy1);
 	}
 
@@ -184,7 +204,7 @@ int main()
 
 
 	// Input System
-	InputProcess myinputProcess;
+	InputProcess myinputProcess(mode);
 
 
 	/// we can now get data for the specific OpenGL instance we created 
@@ -231,7 +251,7 @@ int main()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	///////////////////////////////////////////////////////////////////////////
 
-	bool debug_mode = 1;
+	bool debug_mode = 0;
 
 
 	// render loop
@@ -272,7 +292,7 @@ int main()
 			}
 
 
-			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && 0)
 			{
 				system("cls");
 				for (unsigned int i = 0; i < COL; i++)
@@ -295,32 +315,16 @@ int main()
 		}
 		else
 		{
-			/// <summary>
-			/// temp
-			/// </summary>
-			/// <returns></returns>
-			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+			for (int i = 0; i < 3; i++)
 			{
-				system("cls");
-				for (unsigned int i = 0; i < COL; i++)
-				{
-					for (unsigned int j = 0; j < COL; j++)
-					{
-						cout << myMazeArray[i * COL + j] << " ";
-					}
-					cout << "\n";
-				}
-			}
-			for (auto it : myEnemies)
-			{
-				it.Render(projection, view, camera);
-				it.Update();
+				myEnemies[i].Render(projection, view, camera);
+				myEnemies[i].Update();
 			}
 			/// <summary>
 			/// temp
 			/// </summary>
 			/// <returns></returns>
-			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
 			view = camera.GetViewMatrix();
 			myHedges.update(projection, view, camera);
 			myPlayer.Update();

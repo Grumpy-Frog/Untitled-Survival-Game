@@ -10,16 +10,27 @@ class Player : public Entity
 private:
 	int* myMaze;
 	int* tempMaze;
+	bool isJumping = false;
 
 private:
 	int prev_i = 1;
 	int prev_j = 1;
 
-public:
-	
+	float speed;
 
 public:
-	Player(const char* vertexShader, const char* fragmentShader, string model, int* maze);
+	void setJumpStatus(bool s)
+	{
+		this->isJumping = s;
+	}
+
+	bool getJumpStatus()
+	{
+		return this->isJumping;
+	}
+
+public:
+	Player(const char* vertexShader, const char* fragmentShader, string model, int* maze, float speed = 10.0f);
 
 	~Player();
 
@@ -85,6 +96,16 @@ public:
 			this->setPosition(pos);
 			//printPos();
 		}
+	}
+
+	void setSpeed(float newSpeed)
+	{
+		this->speed = newSpeed;
+	}
+
+	float getSpeed()
+	{
+		return this->speed;
 	}
 };
 

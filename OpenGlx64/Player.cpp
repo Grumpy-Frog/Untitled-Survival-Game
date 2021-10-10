@@ -2,7 +2,7 @@
 
 
 // public funtions
-Player::Player(const char* vertexShader, const char* fragmentShader, string model, int* maze)
+Player::Player(const char* vertexShader, const char* fragmentShader, string model, int* maze,float speed)
 	: Entity(vertexShader, fragmentShader, model)
 {
 	this->myMaze = maze;
@@ -14,6 +14,8 @@ Player::Player(const char* vertexShader, const char* fragmentShader, string mode
 			tempMaze[i * COL + j] = myMaze[i * COL + j];
 		}
 	}
+
+	this->speed = speed;
 }
 
 Player::~Player()

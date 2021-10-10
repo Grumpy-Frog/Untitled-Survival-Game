@@ -165,3 +165,41 @@ int* Maze::getMaze()
 {
     return this->myMaze;
 }
+
+void Maze::manipulate()
+{
+    myMaze[17] = 0;
+    myMaze[1073] = 0;
+
+    
+    
+
+    for (int i = 0; i < COL; i++)
+    {
+        for (int j = 0; j < COL; j++)
+        {
+            int indexY[] = { i - 1,i ,i ,i + 1 };
+            int indexX[] = { j,j - 1,j + 1,j };
+            if (isIndexValid(i,j) && myMaze[i * COL + j]==0)
+            {
+                int t = 0;
+                vector<int>temp;
+                temp.clear();
+                for (unsigned int valueOfCheckingIndex = 0; valueOfCheckingIndex < 4; valueOfCheckingIndex++)
+                {   
+                    if (isIndexValid(indexY[valueOfCheckingIndex], indexX[valueOfCheckingIndex]) &&
+                        myMaze[indexY[valueOfCheckingIndex] * COL + indexX[valueOfCheckingIndex]] == 1)
+                    {
+                        t++;
+                        temp.push_back(valueOfCheckingIndex);
+                    }
+                }
+                if (t == 3)
+                {
+                    t = 1;
+                    myMaze[indexY[temp[t]] * COL + indexX[temp[t]]] = 0;
+                }
+            }
+        }
+    }
+}

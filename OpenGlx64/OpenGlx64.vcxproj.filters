@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Shaders">
       <UniqueIdentifier>{0467e167-105d-4f51-b177-c56c2e56dac8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Math headers">
+      <UniqueIdentifier>{a203afb2-c846-47de-9606-00fe622e27a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math cpp">
+      <UniqueIdentifier>{bef78342-eebe-4fdd-b7c9-9ae0f412a563}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -103,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Header Files\Math headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

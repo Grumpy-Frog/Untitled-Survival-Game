@@ -4,8 +4,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+
 #include <glm.hpp>
 #include <gtc\matrix_transform.hpp>
+
 
 #include "Camera.h"
 #include "Player.h"
@@ -113,10 +115,12 @@ private:
 	}
 
 public:
-	InputProcess()
+	InputProcess(const GLFWvidmode* mode)
 	{
 		// pass
 		// will add something in future
+		this->lastX = mode->width / 2.0f;
+		this->lastY = mode->height / 2.0f;
 	}
 
 
@@ -127,8 +131,18 @@ public:
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+		{
+			myPlayer.setSpeed(7.5f);
+			myPlayer.setJumpStatus(true);
+		}
+		else
+		{
+			myPlayer.setSpeed(3.5f);
+			myPlayer.setJumpStatus(false);
+		}
 
-		float velocity = 10.f * deltaTime;
+		float velocity = myPlayer.getSpeed() * deltaTime;
 		
 		
 		if (this->isJumping == false && this->isFalling == false)
@@ -155,6 +169,7 @@ public:
 		{
 			this->jumpVelocity = 10.0f;
 			this->isJumping = true;
+			myPlayer.setJumpStatus(this->isJumping);
 		}
 
 		if (this->isJumping)
@@ -172,6 +187,7 @@ public:
 			camera.Position.y = 1.0f;
 			this->isJumping = false;
 			this->isFalling = false;
+			myPlayer.setJumpStatus(this->isJumping);
 		}
 	}
 

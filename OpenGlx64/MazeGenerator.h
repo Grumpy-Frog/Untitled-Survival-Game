@@ -95,6 +95,16 @@ public:
 
     void generateMaze();
     int* getMaze();
+    void manipulate();
+
+    bool isIndexValid(int i, int j)
+    {
+        if (i<1 || j<1 || i>COL - 2 || j > COL - 2)
+        {
+            return false;
+        }
+        return true;
+    }
 };
 
 
