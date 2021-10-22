@@ -1,42 +1,23 @@
 ﻿D:\programme\Microsoft Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (both.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Enemy.cpp
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(116,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(117,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(123,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(124,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(144,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(284,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(285,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
   main.cpp
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\Dependences\GLFW\include\GLFW\glfw3.h(123): message : see previous definition of 'APIENTRY'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(116,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
-          with
-          [
-              T=float
-          ]
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(58,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(59,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(66,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(67,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(74,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(75,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(82,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(83,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(91,1): warning C4305: 'argument': truncation from 'double' to 'float'
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Light.h(92,1): warning C4305: 'argument': truncation from 'double' to 'float'
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(117,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(123,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(118,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
@@ -46,9 +27,14 @@ F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\Ope
           [
               T=float
           ]
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(144,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(284,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(125,9): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(145,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(285,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Enemy.h(286,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(63,29): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(64,29): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(81,26): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
@@ -71,26 +57,19 @@ F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\Ope
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(182,26): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(182,30): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(182,36): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(294,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(295,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(302,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(303,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(310,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(311,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(318,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(319,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(328,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(329,1): warning C4305: 'argument': truncation from 'double' to 'float'
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(359,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(263,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(371,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(372,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(376,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(377,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(379,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(380,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(389,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(293,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(185,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(193,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(363,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(449,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(557,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(836,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(837,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(841,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(842,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(844,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(845,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(854,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\InputProcess.h(51): warning C4715: 'InputProcess::checkCollision': not all control paths return a value
   SOIL.lib(stb_image_aug.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification

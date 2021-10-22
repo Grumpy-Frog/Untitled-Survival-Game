@@ -29,7 +29,7 @@ private:
 
 
 	//Jump variables
-	float gravity = 9.81f;
+	float gravity = 6.81f;
 	bool isJumping = false;
 	bool isFalling = false;
 	float jumpFriction = 0.5f;
@@ -126,12 +126,17 @@ public:
 
 	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 	// ---------------------------------------------------------------------------------------------------------
-	void processInputKeyboard(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges, float deltaTime)
+	void processInputKeyboard(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges, 
+		float deltaTime, glm::vec3 *posLight)
 	{
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
+		{
+			//glfwSetWindowShouldClose(window, true);
+			return;
+		}
 
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+			glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS )
 		{
 			myPlayer.setSpeed(7.5f);
 			myPlayer.setJumpStatus(true);
@@ -142,9 +147,22 @@ public:
 			myPlayer.setJumpStatus(false);
 		}
 
+		if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		{
+			posLight[3] = camera.Position;
+			myPlayer.setTorchStatus(true);
+		}
+		else
+		{
+			posLight[3] = glm::vec3(2500.0f, 2500.0f, 2500.0f);
+			myPlayer.setTorchStatus(0);
+		}
+
+
+
 		float velocity = myPlayer.getSpeed() * deltaTime;
-		
-		
+
+
 		if (this->isJumping == false && this->isFalling == false)
 		{
 			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -167,9 +185,8 @@ public:
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && camera.Position.y <= 1.0f)
 		{
-			this->jumpVelocity = 10.0f;
+			this->jumpVelocity = 5.0f;
 			this->isJumping = true;
-			myPlayer.setJumpStatus(this->isJumping);
 		}
 
 		if (this->isJumping)
@@ -198,7 +215,7 @@ public:
 
 		if (camera.Position.y >= 4.0f)
 		{
-			this->jumpVelocity = 5.0f;
+			this->jumpVelocity = 0.0f;
 			this->isJumping = false;
 			this->isFalling = true;
 		}
@@ -206,7 +223,8 @@ public:
 
 
 
-	void processInputGamePad(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges, float deltaTime)
+	void processInputGamePad(GLFWwindow* window, Camera& camera, Player& myPlayer, Hedge& myHedges,
+		float deltaTime,glm::vec3* posLight)
 	{
 		int axesCount;
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
@@ -294,29 +312,83 @@ public:
 
 
 		if (buttons[8] == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
+		{
+			//glfwSetWindowShouldClose(window, true);
+		}
+
+		if (GLFW_PRESS == buttons[5])
+		{
+			myPlayer.setSpeed(7.5f);
+			myPlayer.setJumpStatus(true);
+		}
+		else
+		{
+			myPlayer.setSpeed(3.5f);
+			myPlayer.setJumpStatus(false);
+		}
 
 
-		float velocity = 10.f * deltaTime;
+		if (GLFW_PRESS == buttons[6])
+		{
+			posLight[3] = camera.Position;
+			myPlayer.setTorchStatus(1);
+		}
+		else
+		{
+			posLight[3] = glm::vec3(2500.0f, 2500.0f, 2500.0f);
+			myPlayer.setTorchStatus(0);
+		}
 
-		///Player Movement
-		if (axes[1] == -1.0f || GLFW_PRESS == buttons[12])
+
+
+		float velocity = myPlayer.getSpeed() * deltaTime;
+
+		if (this->isJumping == false && this->isFalling == false)
 		{
-			MoveFront(myPlayer, camera, myHedges, velocity);
+			///Player Movement
+			if (axes[1] == -1.0f /*|| GLFW_PRESS == buttons[12] */)
+			{
+				MoveFront(myPlayer, camera, myHedges, velocity);
+			}
+			if (axes[1] == 1.0f /*|| GLFW_PRESS == buttons[14] */ )
+			{
+				MoveFront(myPlayer, camera, myHedges, -velocity);
+			}
+			if (axes[0] == 1.0f /*|| GLFW_PRESS == buttons[13] */ )
+			{
+				MoveRight(myPlayer, camera, myHedges, velocity);
+			}
+			if (axes[0] == -1.0f /*|| GLFW_PRESS == buttons[15] */ )
+			{
+				MoveRight(myPlayer, camera, myHedges, -velocity);
+			}
 		}
-		if (axes[1] == 1.0f || GLFW_PRESS == buttons[14])
-		{
-			MoveFront(myPlayer, camera, myHedges, -velocity);
-		}
-		if (axes[0] == 1.0f || GLFW_PRESS == buttons[13])
-		{
-			MoveRight(myPlayer, camera, myHedges, velocity);
-		}
-		if (axes[0] == -1.0f || GLFW_PRESS == buttons[15])
-		{
-			MoveRight(myPlayer, camera, myHedges, -velocity);
-		}
+		
 		//camera.Position.y = 1.0f;
+
+		if (GLFW_PRESS == buttons[4] && camera.Position.y <= 1.0f)
+		{
+			this->jumpVelocity = 5.0f;
+			this->isJumping = true;
+			myPlayer.setJumpStatus(this->isJumping);
+		}
+
+		if (this->isJumping)
+		{
+			calculateJump(camera, deltaTime);
+		}
+		else if (this->isFalling)
+		{
+			this->jumpVelocity += gravity * deltaTime;
+			camera.Position.y -= this->jumpVelocity * deltaTime;
+		}
+		if (camera.Position.y < 1.0f)
+		{
+			camera.Position.y = 1.0f;
+			this->isJumping = false;
+			this->isFalling = false;
+			myPlayer.setJumpStatus(this->isJumping);
+		}
 
 
 		if (axes[2] != defaultAxesValue)

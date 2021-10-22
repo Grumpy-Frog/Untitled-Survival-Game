@@ -8,7 +8,8 @@
 //#include "Entity.h"
 #include "Player.h"
 #include "MazeGenerator.h"
-
+#include "Animation.h"
+#include "Light.h"
 
 
 class Node
@@ -199,7 +200,7 @@ public:
 	}
 };
 
-class Enemy : public Entity, public Node
+class Enemy : public Entity, public Node, public Light
 {
 private:
 
@@ -245,10 +246,10 @@ private:
 	bool aaa = 1;
 	bool isActive = false;
 
-	vector<string>animation;
-	int animIter = 0;
-	vector<Model>animModels;
-	int counter = 0;
+
+	// Animation related stuffs
+	Animation* myAnimation1;
+
 
 	double getDistance(glm::vec3 p1, glm::vec3 p2)
 	{
@@ -273,7 +274,7 @@ private:
 				if ((round(this->getIndex().y) * 2 == (currentNode->x * 2.0f)) &&
 					(round(this->getIndex().x) * 2 == (currentNode->y * 2.0f)))
 				{
-					glm::vec3 t = glm::vec3(round(this->getIndex().x) * 2, 0.0f , round(this->getIndex().y) * 2);
+					glm::vec3 t = glm::vec3(round(this->getIndex().x) * 2, 0.0f, round(this->getIndex().y) * 2);
 					t.y = -0.4f;
 					this->setPosition(t);
 
@@ -288,7 +289,7 @@ private:
 						currentNode = currentNode->parent;
 						if (currentNode != nullptr)
 						{
-							posDiff = glm::vec3((currentNode->y * 2.0f) - z, 0.0f , (currentNode->x * 2.0f) - x);
+							posDiff = glm::vec3((currentNode->y * 2.0f) - z, 0.0f, (currentNode->x * 2.0f) - x);
 
 							/*cout << currentNode->x * 2.0f << " ";
 							cout << currentNode->y * 2.0f << "| ";
@@ -300,7 +301,7 @@ private:
 					}
 				}
 				timePassed = 0.0f;
-				
+
 			}
 			else
 			{
@@ -331,40 +332,23 @@ private:
 				this->setPosition(temp);
 			}
 			this->timePassed += *this->deltaTime;
-			
-			animate();
-			
+
+			myAnimation1->animate(*(this));
+
 		}
 		else
 		{
-			if (getDistance(myPlayer_ptr->getPosition(), this->getPosition())<=15.0f && myPlayer_ptr->getJumpStatus())
+			if ( (getDistance(myPlayer_ptr->getPosition(), this->getPosition()) <= 15.0f) && 
+				(myPlayer_ptr->getJumpStatus() || myPlayer_ptr->getTorchStatus()))
 			{
 				this->isActive = true;
 			}
 		}
 	}
 
-private:
-	void animate()
-	{
-		if (counter >= 10)
-		{
-			setModel(&animModels[animIter]);
-			animIter++;
-			if (animIter >= animModels.size())
-			{
-				this->animIter = 1;
-			}
-			counter = 0;
-		}
-		else
-		{
-			counter++;
-		}
-	}
 
 public:
-	Enemy(const char* vertexShader, const char* fragmentShader, vector<string>&model,
+	Enemy(const char* vertexShader, const char* fragmentShader, vector<string>& model,
 		glm::vec3 position, int id, float* dlTime,
 		Player* player_ptr, int* maze)
 		: Entity(vertexShader, fragmentShader, model[0], glm::vec3(0.60f, 0.60f, 0.60f))
@@ -376,7 +360,10 @@ public:
 		this->setPosition(position);
 		this->setMaze();
 		this->setId(id);
-		setAnimation(model);
+
+		this->myAnimation1 = new Animation(model);
+		myAnimation1->setAnimModel();
+
 	}
 	// deep copy
 	/*
@@ -396,13 +383,28 @@ public:
 
 	~Enemy()
 	{
+		
+	}
+
+	void deallocEnem()
+	{
+		if (this->aStar)
+		{
+			delete this->aStar;
+		}
+		if (this->tempMaze)
+		{
+			delete this->tempMaze;
+		}
 
 	}
 
 
-	void Update()
+	void Update(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3* pointLights)
 	{
 		calculatePlayer();
+		this->UpdateLighting(projection, view, camera, *this->myShader, pointLights);
+		this->Render(projection, view, camera);
 	}
 
 public:
@@ -438,19 +440,9 @@ public:
 		return this->isActive;
 	}
 
-	void setAnimation(vector<string>& s)
+	Animation* getAnimation()
 	{
-		this->animation = s;
-	}
-
-	void setAnimModel()
-	{
-		for (int i = 0; i < animation.size(); i++)
-		{
-			Model temp(animation[i]);
-			animModels.push_back(temp);
-		}
-		//cout << animModels.size() << endl;
+		return this->myAnimation1;
 	}
 };
 

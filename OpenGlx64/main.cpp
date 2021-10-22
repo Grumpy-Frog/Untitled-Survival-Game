@@ -18,16 +18,20 @@
 #include "Camera.h"
 #include "InputProcess.h"
 #include "Math.h"
-
+#include "Button.h"
+#include "LightCube.h"
+#include "Extra.h"
 
 #include <iostream>
-#include <conio.h>
+//#include <conio.h>
+
 
 #ifdef _WIN32
 #include <windows.h>
 //extern "C" __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 //extern "C" __declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;
 #endif
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -51,9 +55,6 @@ float lastFrame = 0.0f;
 
 void processInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -64,47 +65,682 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-unsigned int loadTexture(char const* path)
+
+void menuCameraFixedPosition()
 {
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
+	camera.Position.x = 17.3304f;
+	camera.Position.y = 13.4258f;
+	camera.Position.z = 15.0817f;
+	camera.Front.x = -0.682428f;
+	camera.Front.y = -0.438371f;
+	camera.Front.z = -0.584912f;
+	camera.Pitch = 0.0f;
+}
 
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
+void creditCameraFixedPosition()
+{
+	camera.Position.x = 1.59869f;
+	camera.Position.y = 19.7325f;
+	camera.Position.z = -8.03981f;
+	camera.Front.x = 0.0114171f;
+	camera.Front.y = -0.837719f;
+	camera.Front.z = 0.545983f;
+	//camera.Pitch = 0.0f;
+}
 
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_MIRRORED_REPEAT : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_MIRRORED_REPEAT : GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
+void controlCameraFixedPosition()
+{
+	camera.Position.x = -11.657f;
+	camera.Position.y = 14.4806f;
+	camera.Position.z = -11.297f;
+	camera.Front.x = 0.601058f;
+	camera.Front.y = -0.617035f;
+	camera.Front.z = 0.507934f;
+	camera.Pitch = 0.0f;
 }
 
 
 
+void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
+{
+	bool isPlayerDead = false;
+
+	float degree = 0.0f;
+	float playTime = 0.0f;
+	camera.Position = glm::vec3(34.0f, 1.0f, 2.0f);
+	// build and compile shaders
+	// -------------------------
+	// load models
+	// -----------
+	// Hedge
+	Hedge myHedges("lightInstanceVertex.shader", "lightInstanceFragment.shader",
+		"Models/Hedge/cube.obj", "Models/Ground/cube.obj");
+	myHedges.init(enemyPositions);
+	int* myMazeArray;
+	myMazeArray = myHedges.getMazeArray();
+
+	/*
+	for (unsigned int i = 0; i < COL; i++)
+	{
+		for (unsigned int j = 0; j < COL; j++)
+		{
+			cout << myMazeArray[i * COL + j] << " ";
+		}
+		cout << "\n";
+	}
+	*/
+
+
+	// Player
+	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
+		myMazeArray, 7.5f);
+	myPlayer.setPosition(camera.Position);
+	//Enemy
+	vector<Enemy>myEnemies;
+
+	vector<string>animationsModelNames;
+	string modelName = "Models/CreeperForMaze/c1.obj";
+	for (int i = 1; i < 6; i++)
+	{
+		modelName[modelName.size() - 5] = (char)(i + '0');
+		animationsModelNames.push_back(modelName);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		Enemy  myEnemy1("menuShaderVertex.shader", "menuShaderFragment.shader", animationsModelNames,
+			enemyPositions[i], 1, &deltaTime,
+			&myPlayer, myMazeArray);
+		myEnemy1.setRadious(1.5f);
+		myEnemies.push_back(myEnemy1);
+	}
+
+	vector<LightCube>myLightCubes;
+	for (int i = 0; i < 4; i++)
+	{
+		LightCube temp("light_cube_vertex.shader", "light_cube_fragment.shader",
+			pointLightPositions[i], verticess);
+		myLightCubes.push_back(temp);
+	}
+	myLightCubes[0].setScale(glm::vec3(4.0, 4.0, 4.0));
+	pointLightPositions[1] = glm::vec3(36.0f, 100.0f, 65.0f);
+	myLightCubes[1].setScale(glm::vec3(1.0, 202.0, 1.0));
+	myLightCubes[1].setPosition(pointLightPositions[1]);
+	pointLightPositions[2] = glm::vec3(32.0f, 100.0f, 65.0f);
+	myLightCubes[2].setScale(glm::vec3(1.0, 202.0, 1.0));
+	myLightCubes[2].setPosition(pointLightPositions[2]);
+	pointLightPositions[3] = glm::vec3(209.0f, 0.0f, 209.0f);
+
+	// Input System
+	InputProcess myinputProcess(mode);
+
+	//colliders
+	glm::vec3 endPointPosition = glm::vec3(34.0f, 1.0f, 65.0f);
+	CubeCollider endPoint(endPointPosition);
+	CollisionDetection collisionDetection;
+
+	bool debug_mode = 0;
+	deltaTime = 0.0f;
+	lastFrame = glfwGetTime();
+	// render loop
+	// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		
+		// per-frame time logic
+		// --------------------
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		if (playTime < 46.0f)
+		{
+			playTime += deltaTime;
+		}
+		else
+		{
+			for (int i = 0; i < myEnemies.size(); i++)
+			{
+				myEnemies[i].setActive(true);
+			}
+		}
+
+
+		//simple input
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || 
+			isPlayerDead ||
+			collisionDetection.SphereRectCollision(myPlayer, endPoint) )
+		{
+			for (int i = 0; i < myEnemies.size(); i++)
+			{
+				myEnemies[i].dealloc();
+				myEnemies[i].deallocEnem();
+			}
+			myPlayer.dealloc();
+
+			if (isPlayerDead)
+			{
+				// show death msg
+				cout << "Died\n";
+			}
+			if (collisionDetection.SphereRectCollision(myPlayer, endPoint))
+			{
+				// show win msg
+				cout << "WIN\n";
+			}
+
+			return;
+		}
+
+
+		// render
+		// ------
+		glClearColor((playTime/49.0f) - 0.39f, (playTime / 49.0f) - 0.11f, (playTime / 49.0f), 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// configure transformation matrices
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+
+
+
+		if (debug_mode)
+		{
+			//camera = camera2;
+			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+			view = camera.GetViewMatrix();
+			myHedges.update(projection, view, camera, pointLightPositions);
+			myPlayer.Render(projection, view, camera);
+			myPlayer.processInput(window);
+			myPlayer.Update();
+
+			for (int i = 0; i < myEnemies.size(); i++)
+			{
+				myEnemies[i].Update(projection, view, camera, pointLightPositions);
+			}
+
+
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && 0)
+			{
+				system("cls");
+				for (unsigned int i = 0; i < COL; i++)
+				{
+					for (unsigned int j = 0; j < COL; j++)
+					{
+						cout << myMazeArray[i * COL + j] << " ";
+					}
+					cout << "\n";
+				}
+			}
+
+			camera.Position.x = 28.8f;
+			camera.Position.y = 88.0f;
+			camera.Position.z = 36.0f;
+			camera.Front.x = 0.0174524f;
+			camera.Front.y = -0.999848f;
+			camera.Front.z = 7.71616e-11f;
+			processInput(window);
+		}
+		else
+		{
+			for (int i = 0; i < myEnemies.size(); i++)
+			{
+				myEnemies[i].Update(projection, view, camera, pointLightPositions);
+				if (myEnemies[i].getActive())
+				{
+					if (collisionDetection.SphereSphereCollision(myPlayer, myEnemies[i]))
+					{
+						isPlayerDead = true;
+					}
+				}
+			}
+			/// <summary>
+			/// update all models
+			/// </summary>
+			/// <returns></returns>
+			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
+			view = camera.GetViewMatrix();
+			myHedges.update(projection, view, camera, pointLightPositions);
+			myPlayer.Update();
+
+			degree += 0.5f * deltaTime;
+			if (degree > 360)
+			{
+				degree = 0;
+			}
+			//lights
+			pointLightPositions[0] = glm::vec3(32.0f, sin(degree) * 39.0f, cos(degree) * 39.0f + 32.0f);
+
+			for (int i = 0; i < 3; i++)
+			{
+				myLightCubes[i].setPosition(pointLightPositions[i]);
+				myLightCubes[i].Render(projection, view, camera, 0.0f);
+			}
+
+			// input
+			// -----
+			int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+			if (present == 1)
+			{
+				myinputProcess.processInputGamePad(window, camera, myPlayer, myHedges, deltaTime, pointLightPositions);
+			}
+			myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime, pointLightPositions);
+		}
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+}
+
+
+void controlMenu(GLFWwindow* window, const GLFWvidmode* mode)
+{
+
+	Button myButton("menuShaderVertex.shader", "menuShaderFragment.shader", "Models/Control/control.obj");
+
+	float degree = 0;
+
+	vector<LightCube>myLightCubes;
+	for (int i = 0; i < 4; i++)
+	{
+		LightCube temp("light_cube_vertex.shader", "light_cube_fragment.shader",
+			pointLightPositions[i], verticess);
+		myLightCubes.push_back(temp);
+	}
+
+	// Player
+	Button player("menuShaderVertex.shader", "menuShaderFragment.shader", "Models/pink/pink.obj");
+
+	// render loop
+	// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		controlCameraFixedPosition();
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// gamepad
+		int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+		if (present == 1)
+		{
+			int buttonCount;
+			const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+			if (GLFW_PRESS == buttons[1])
+			{
+				return;
+			}
+		}
+		// keyboard input
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		{
+			return;
+		}
+
+
+		// render
+		// ------
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// configure transformation matrices
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+
+
+		degree += 1.0f * deltaTime;
+		if (degree > 360)
+		{
+			degree = 0;
+		}
+		pointLightPositions[0] = glm::vec3(cos(degree) * 15.f, sin(degree) * 15.0f, pointLightPositions[0].z);
+		pointLightPositions[1] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, pointLightPositions[1].z);
+		pointLightPositions[2] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, sin(degree) * 15.f);
+		pointLightPositions[3] = glm::vec3(sin(degree) * 6.f + 1.5f, sin(degree + degree / 2.0f) * 5.0f + 7.0f, cos(degree) * 6.0f + 1.5f);
+
+		for (int i = 0; i < 4; i++)
+		{
+			myLightCubes[i].setPosition(pointLightPositions[i]);
+			myLightCubes[i].Render(projection, view, camera, degree * 100.0f);
+		}
+
+		player.Update(projection, view, camera, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+		player.processInput(window, deltaTime);
+		myButton.Update(projection, view, camera, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+
+		processInput(window);
+		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
+		//cout << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << "\n";
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+}
+
+void credits(GLFWwindow* window, const GLFWvidmode* mode)
+{
+	creditCameraFixedPosition();
+
+	Button myButton("menuShaderVertex.shader", "menuShaderFragment.shader", "Models/Credits/credits.obj");
+
+	float degree = 0;
+
+	vector<LightCube>myLightCubes;
+	for (int i = 0; i < 4; i++)
+	{
+		LightCube temp("light_cube_vertex.shader", "light_cube_fragment.shader",
+			pointLightPositions[i], verticess);
+		myLightCubes.push_back(temp);
+	}
+
+
+	// render loop
+	// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		//creditCameraFixedPosition();
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// gamepad
+		int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+		if (present == 1)
+		{
+			int buttonCount;
+			const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+			if (GLFW_PRESS == buttons[1])
+			{
+				return;
+			}
+		}
+		// keyboard input
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		{
+			return;
+		}
+
+
+		// render
+		// ------
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// configure transformation matrices
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+
+
+		degree += 1.0f * deltaTime;
+		if (degree > 360)
+		{
+			degree = 0;
+		}
+		pointLightPositions[0] = glm::vec3(cos(degree) * 15.f, sin(degree) * 15.0f, pointLightPositions[0].z);
+		pointLightPositions[1] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, pointLightPositions[1].z);
+		pointLightPositions[2] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, sin(degree) * 15.f);
+		pointLightPositions[3] = glm::vec3(sin(degree) * 6.f + 1.5f, sin(degree + degree / 2.0f) * 5.0f + 7.0f, cos(degree) * 6.0f + 1.5f);
+
+		for (int i = 0; i < 4; i++)
+		{
+			myLightCubes[i].setPosition(pointLightPositions[i]);
+			myLightCubes[i].Render(projection, view, camera, degree * 100.0f);
+		}
+
+		myButton.Update(projection, view, camera, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+
+		//processInput(window);
+		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
+		//cout << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << "\n";
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+}
+
+
+void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
+{
+	vector<Button>myButtons;
+	string modelName = "Models/Menu/Menu1.obj";
+	for (int i = 1; i <= 6; i++)
+	{
+		modelName[modelName.size() - 5] = (char)(i + '0');
+		Button temp("menuShaderVertex.shader", "menuShaderFragment.shader", modelName);
+		myButtons.push_back(temp);
+	}
+
+	float degree = 0;
+
+	float angle = 1.0f;
+	float a = 0.1f;
+
+	int selectedButton = 1;
+
+	vector<LightCube>myLightCubes;
+	for (int i = 0; i < 4; i++)
+	{
+		LightCube temp("light_cube_vertex.shader", "light_cube_fragment.shader",
+			pointLightPositions[i], verticess);
+		myLightCubes.push_back(temp);
+	}
+
+
+	// render loop
+// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		menuCameraFixedPosition();
+
+		// render
+		// ------
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// configure transformation matrices
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+
+		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
+		//cout << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << "\n";
+		// per-frame time logic
+		// --------------------
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// gamepad
+		int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+		if (present == 1)
+		{
+			int buttonCount;
+			const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+			// keyboard input
+			if (GLFW_PRESS == buttons[12])
+			{
+				selectedButton--;
+			}
+			else if (GLFW_PRESS == buttons[14])
+			{
+				selectedButton++;
+			}
+			else if (GLFW_PRESS == buttons[13])
+			{
+				selectedButton--;
+			}
+			else if (GLFW_PRESS == buttons[15])
+			{
+				selectedButton++;
+			}
+			else if (GLFW_PRESS == buttons[0])
+			{
+				if (selectedButton >= 1 && selectedButton <= 50)
+				{
+					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
+					glfwSwapBuffers(window);
+					gameZone(window, mode);
+				}
+				if (selectedButton >= 51 && selectedButton <= 100)
+				{
+					controlMenu(window, mode);
+				}
+				if (selectedButton >= 101 && selectedButton <= 150)
+				{
+					return;
+				}
+				if (selectedButton >= 151 && selectedButton <= 200)
+				{
+					credits(window, mode);
+				}
+			}
+		}
+		// keyboard input
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			selectedButton--;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			selectedButton++;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			selectedButton--;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			selectedButton++;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+		{
+			if (selectedButton >= 1 && selectedButton <= 50)
+			{
+				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
+				glfwSwapBuffers(window);
+				gameZone(window, mode);
+			}
+			if (selectedButton >= 51 && selectedButton <= 100)
+			{
+				controlMenu(window, mode);
+			}
+			if (selectedButton >= 101 && selectedButton <= 150)
+			{
+				return;
+			}
+			if (selectedButton >= 151 && selectedButton <= 200)
+			{
+				credits(window, mode);
+			}
+		}
+		if (selectedButton <= 0)
+		{
+			selectedButton = 200;
+		}
+		if (selectedButton >= 201)
+		{
+			selectedButton = 1;
+		}
+
+
+
+
+		angle += a * deltaTime;
+		if (angle > 1.2f || angle < 1.0f)
+		{
+			a = -a;
+		}
+		/*
+		for (int i = 0; i < 4; i++)
+		{
+			pointLightPositions[i] = glm::vec3(pointLightPositions[i].x + angle,
+				pointLightPositions[i].y + angle,
+				pointLightPositions[i].z + angle);
+		}
+		*/
+		//for play x
+		//for ctrl y
+		//for exit z
+		//for credits all
+		for (int i = 0; i < myButtons.size() - 1; i++)
+		{
+			if ((selectedButton >= 1 && selectedButton <= 50) && i == 0)
+			{
+				myButtons[i].Update(projection, view,
+					camera, 0.0f, glm::vec3(1.0f, angle, angle), pointLightPositions);
+			}
+			else if ((selectedButton >= 51 && selectedButton <= 100) && i == 1)
+			{
+				myButtons[i].Update(projection, view, camera, 0.0f,
+					glm::vec3(angle, 1.0f, angle), pointLightPositions);
+			}
+			else if ((selectedButton >= 101 && selectedButton <= 150) && i == 2)
+			{
+				myButtons[i].Update(projection, view, camera, 0.0f,
+					glm::vec3(angle, angle, 1.0f), pointLightPositions);
+			}
+			else if ((selectedButton >= 151 && selectedButton <= 200) && i == 3)
+			{
+				myButtons[i].Update(projection, view, camera, 0.0f,
+					glm::vec3(1.0f, angle, 1.0f), pointLightPositions);
+			}
+			else
+			{
+				myButtons[i].Update(projection, view, camera, 0.0f,
+					glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+			}
+		}
+
+		degree += 1.0f * deltaTime;
+		if (degree > 360)
+		{
+			degree = 0;
+		}
+
+		pointLightPositions[0] = glm::vec3(cos(degree) * 15.f, sin(degree) * 15.0f, pointLightPositions[0].z);
+		pointLightPositions[1] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, pointLightPositions[1].z);
+		pointLightPositions[2] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, sin(degree) * 15.f);
+		pointLightPositions[3] = glm::vec3(sin(degree) * 6.f + 1.5f, sin(degree + degree / 2.0f) * 5.0f + 1.0f, cos(degree) * 6.0f + 1.5f);
+
+		for (int i = 0; i < 4; i++)
+		{
+			myLightCubes[i].setPosition(pointLightPositions[i]);
+			myLightCubes[i].Render(projection, view, camera, degree * 100.0f);
+		}
+
+		//processInput(window);
+
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+}
+
+
 int main()
 {
+	//close debug window
+	HWND debugConsole;
+	debugConsole = FindWindowA("ConsoleWindowClass",NULL);
+	ShowWindow(debugConsole, 0);
+
+	//doEncription();
+	//return 0;
+	doDecription();
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -139,6 +775,9 @@ int main()
 	// tell GLFW to capture our mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	lastX = mode->width / 2.0f;
+	lastY = mode->height / 2.0f;
+
 	// glew load all OpenGL function pointers
 	// --------------------------------------
 	if (glewInit() != GLEW_OK)
@@ -147,65 +786,9 @@ int main()
 		return -1;
 	}
 
-
 	// configure global opengl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
-
-
-	// build and compile shaders
-	// -------------------------
-	// load models
-	// -----------
-	// Hedge
-	Hedge myHedges("lightInstanceVertex.shader", "lightInstanceFragment.shader", "Models/Hedge/cube.obj", "Models/Ground/cube.obj");
-	int* myMazeArray;
-	myMazeArray = myHedges.getMazeArray();
-
-	/*
-	for (unsigned int i = 0; i < COL; i++)
-	{
-		for (unsigned int j = 0; j < COL; j++)
-		{
-			cout << myMazeArray[i * COL + j] << " ";
-		}
-		cout << "\n";
-	}
-	*/
-
-
-	// Player
-	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
-		myMazeArray, 7.5f);
-
-	//Enemy
-	vector<Enemy>myEnemies;
-	glm::vec3 x[3] = { glm::vec3(62.0f, -0.4f, 62.0f) ,
-					   glm::vec3(2.0f, -0.4f, 2.0f) ,
-					   glm::vec3(62.0f, -0.4f, 2.0f) };
-	vector<string>animationsModelNames;
-	string modelName = "Models/CreeperForMaze/c1.obj";
-	for (int i = 1; i < 6; i++)
-	{
-		modelName[modelName.size() - 5] = (char)(i + '0');
-		animationsModelNames.push_back(modelName);
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		Enemy  myEnemy1("modelVertex.shader", "modelFragment.shader", animationsModelNames,
-			x[i], 1, &deltaTime,
-			&myPlayer, myMazeArray);
-		myEnemy1.setAnimModel();
-		myEnemies.push_back(myEnemy1);
-	}
-
-
-
-
-	// Input System
-	InputProcess myinputProcess(mode);
-
 
 	/// we can now get data for the specific OpenGL instance we created 
 	/// we are using this to get info about our gpu and opengl versions 
@@ -222,131 +805,13 @@ int main()
 	printf("GL Version (integer) : %d.%d\n", major, minor);
 	printf("GLSL Version : %s\n", glslVersion);
 
-	/// <summary>
-	/// Shadow//////////////////////////////
-	/// </summary>
-	/// <returns></returns>
-	// configure depth map FBO
-	// -----------------------
-	//Shader simpleDepthShader("3.1.3.shadow_mapping_depthVS.shader", "3.1.3.shadow_mapping_depthFS.shader");
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-	// create depth texture
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-	// attach depth texture as FBO's depth buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	///////////////////////////////////////////////////////////////////////////
 
-	bool debug_mode = 0;
-
-
-	// render loop
-	// -----------
-	while (!glfwWindowShouldClose(window))
-	{
-		// per-frame time logic
-		// --------------------
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-
-		// render
-		// ------
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// configure transformation matrices
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-
-
-
-		if (debug_mode)
-		{
-			//camera = camera2;
-			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
-			view = camera.GetViewMatrix();
-			myHedges.update(projection, view, camera);
-			myPlayer.Render(projection, view, camera);
-			myPlayer.processInput(window);
-			myPlayer.Update();
-
-			for (int i = 0; i < 3; i++)
-			{
-				myEnemies[i].Render(projection, view, camera);
-				myEnemies[i].Update();
-			}
-
-
-			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && 0)
-			{
-				system("cls");
-				for (unsigned int i = 0; i < COL; i++)
-				{
-					for (unsigned int j = 0; j < COL; j++)
-					{
-						cout << myMazeArray[i * COL + j] << " ";
-					}
-					cout << "\n";
-				}
-			}
-			camera.Position.x = 28.8f;
-			camera.Position.y = 88.0f;
-			camera.Position.z = 36.0f;
-			camera.Front.x = 0.0174524f;
-			camera.Front.y = -0.999848f;
-			camera.Front.z = 7.71616e-11f;
-			processInput(window);
-
-		}
-		else
-		{
-			for (int i = 0; i < 3; i++)
-			{
-				myEnemies[i].Render(projection, view, camera);
-				myEnemies[i].Update();
-			}
-			/// <summary>
-			/// temp
-			/// </summary>
-			/// <returns></returns>
-			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
-			view = camera.GetViewMatrix();
-			myHedges.update(projection, view, camera);
-			myPlayer.Update();
-
-			// input
-			// -----
-			int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
-			if (present == 1)
-			{
-				myinputProcess.processInputGamePad(window, camera, myPlayer, myHedges, deltaTime);
-			}
-			myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime);
-		}
-
-
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+	mainMenu(window, mode);
 
 	glfwTerminate();
+
+	doEncription();
+	ShowWindow(debugConsole, 0);
 	return 0;
 }
 

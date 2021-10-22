@@ -5,9 +5,17 @@
 #include <random>
 #include <stack>
 
+
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
+
 using namespace std;
 
 const int COL = (16 * 2) + 1;
+
+
 
 class Grid
 {
@@ -95,7 +103,7 @@ public:
 
     void generateMaze();
     int* getMaze();
-    void manipulate();
+    void manipulate(glm::vec3* enmPos);
 
     bool isIndexValid(int i, int j)
     {

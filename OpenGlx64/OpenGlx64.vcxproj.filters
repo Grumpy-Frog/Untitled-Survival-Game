@@ -113,6 +113,21 @@
     <ClInclude Include="Math.h">
       <Filter>Header Files\Math headers</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Extra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="av.shader">
@@ -131,6 +146,18 @@
       <Filter>Header Files\Shaders</Filter>
     </None>
     <None Include="lightInstanceFragment.shader">
+      <Filter>Header Files\Shaders</Filter>
+    </None>
+    <None Include="menuShaderFragment.shader">
+      <Filter>Header Files\Shaders</Filter>
+    </None>
+    <None Include="menuShaderVertex.shader">
+      <Filter>Header Files\Shaders</Filter>
+    </None>
+    <None Include="light_cube_vertex.shader">
+      <Filter>Header Files\Shaders</Filter>
+    </None>
+    <None Include="light_cube_fragment.shader">
       <Filter>Header Files\Shaders</Filter>
     </None>
   </ItemGroup>

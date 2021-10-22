@@ -27,7 +27,7 @@ protected:
 	float angle;
 
 public:
-	Entity(const char* vertexShader, const char* fragmentShader, string model, 
+	Entity(const char* vertexShader, const char* fragmentShader, string model,
 		glm::vec3 newScale = glm::vec3(1.0f, 1.0f, 1.0f))
 	{
 		this->position = glm::vec3(2.0f, 0.0f, 2.0f);
@@ -38,7 +38,7 @@ public:
 		this->angle = 90.0f;
 	}
 
-	Entity(Shader &shader, string modelS)
+	Entity(Shader& shader, string modelS)
 	{
 		this->myShader = myShader;
 		this->myModel = new Model(modelS);
@@ -52,11 +52,31 @@ public:
 	~Entity()
 	{
 		cout << "Entity destroyed\n";
-		//delete this->myShader;
-		//delete this->myModel;
+		/*
+		if (this->myShader)
+		{
+			delete this->myShader;
+		}
+		if (this->myModel)
+		{
+			delete this->myModel;
+		}
+		*/
 	}
 
-	void Render(glm::mat4& projection, glm::mat4& view, Camera& camera)
+	virtual void dealloc()
+	{
+		if (this->myShader)
+		{
+			delete this->myShader;
+		}
+		if (this->myModel != NULL)
+		{
+			//delete this->myModel;
+		}
+	}
+
+	virtual void Render(glm::mat4& projection, glm::mat4& view, Camera& camera)
 	{
 		this->myShader->use();
 		this->myShader->setMat4("projection", projection);
@@ -91,12 +111,12 @@ public:
 		return this->radious;
 	}
 
-	void setRadious(float& newRadious)
+	void setRadious(float newRadious)
 	{
 		this->radious = newRadious;
 	}
 
-	void setModel(Model *newModel)
+	void setModel(Model* newModel)
 	{
 		this->myModel = newModel;
 	}

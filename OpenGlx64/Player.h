@@ -11,6 +11,7 @@ private:
 	int* myMaze;
 	int* tempMaze;
 	bool isJumping = false;
+	bool torchOn = false;
 
 private:
 	int prev_i = 1;
@@ -29,10 +30,23 @@ public:
 		return this->isJumping;
 	}
 
+	void setTorchStatus(bool s)
+	{
+		this->torchOn = s;
+	}
+
+	bool getTorchStatus()
+	{
+		return this->torchOn;
+	}
+
 public:
 	Player(const char* vertexShader, const char* fragmentShader, string model, int* maze, float speed = 10.0f);
 
-	~Player();
+	~Player()
+	{
+
+	}
 
 	void Update()
 	{

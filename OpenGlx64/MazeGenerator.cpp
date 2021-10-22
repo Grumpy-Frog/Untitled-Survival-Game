@@ -166,13 +166,13 @@ int* Maze::getMaze()
     return this->myMaze;
 }
 
-void Maze::manipulate()
+void Maze::manipulate(glm::vec3* enemyPositions)
 {
     myMaze[17] = 0;
     myMaze[1073] = 0;
 
     
-    
+    int enemyPosIndex = 0;
 
     for (int i = 0; i < COL; i++)
     {
@@ -198,6 +198,15 @@ void Maze::manipulate()
                 {
                     t = 1;
                     myMaze[indexY[temp[t]] * COL + indexX[temp[t]]] = 0;
+                    if (enemyPosIndex <= 2)
+                    {
+                        float x, y = 1.0, z;
+                        x = (indexY[temp[t]] * COL + indexX[temp[t]]) % COL * 2.0;
+                        z = (indexY[temp[t]] * COL + indexX[temp[t]]) / COL * 2.0;
+                        enemyPositions[enemyPosIndex] = glm::vec3(x, -0.4f, z);
+                        enemyPosIndex++;
+                        cout << enemyPosIndex << endl;
+                    }
                 }
             }
         }

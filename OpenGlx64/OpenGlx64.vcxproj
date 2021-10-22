@@ -34,12 +34,17 @@
     <ClCompile Include="TexGen.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CubeCollider.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Extra.h" />
     <ClInclude Include="Hedge.h" />
     <ClInclude Include="InputProcess.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightCube.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="mesh.h" />
@@ -53,6 +58,10 @@
     <None Include="lightInstanceFragment.shader" />
     <None Include="lightInstanceVertex.shader" />
     <None Include="av.shader" />
+    <None Include="light_cube_fragment.shader" />
+    <None Include="light_cube_vertex.shader" />
+    <None Include="menuShaderFragment.shader" />
+    <None Include="menuShaderVertex.shader" />
     <None Include="modelFragment.shader" />
     <None Include="modelVertex.shader" />
   </ItemGroup>

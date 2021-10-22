@@ -17,9 +17,3 @@ Player::Player(const char* vertexShader, const char* fragmentShader, string mode
 
 	this->speed = speed;
 }
-
-Player::~Player()
-{
-
-}
-

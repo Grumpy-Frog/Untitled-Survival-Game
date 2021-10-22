@@ -25,12 +25,12 @@
 #include "Camera.h"
 #include "CubeCollider.h"
 #include "TexGen.h"
+#include "Light.h"
 //#include "TextureGenerator.h"
 
 using namespace std;
 
-
-class Hedge
+class Hedge : public Light
 {
 private:
 	std::vector<glm::mat4> modelMatricesHedge;
@@ -240,6 +240,7 @@ public:
 		system("start hedge.exe");
 		system("start ground.exe");
 
+		//loading
 		float time = 55.0f;
 		while (time > 0.0f)
 		{
@@ -250,7 +251,6 @@ public:
 		this->Hedges = new Model(hedgeModel);
 		this->Ground = new Model(groundModel);
 
-		init();
 	}
 
 	~Hedge()
@@ -259,81 +259,15 @@ public:
 		delete this->cubeShader;
 		delete this->Hedges;
 		delete this->Ground;
+		modelMatricesHedge.clear();
+		modelMatricesGround.clear();
+		cubeColliders.clear();
+		delete this->myMazeArray;
 	}
 
-	void update(glm::mat4& projection, glm::mat4& view, Camera& camera)
+	void update(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3* pointLights)
 	{
-		// positions of the point lights
-		glm::vec3 pointLightPositions[] =
-		{
-			glm::vec3(5000.0f,  0.0f,  0.0f),
-			glm::vec3(5000.0f,  0.0f,  0.0f),
-			glm::vec3(5000.0f,  0.0f,  0.0f),
-			glm::vec3(5000.0f,  0.0f,  0.0f)
-		};
-
-		// be sure to activate shader when setting uniforms/drawing objects
-
-		this->cubeShader->use();
-		//myShader.setVec3("light.direction", -1.0f, -1.0f, -1.0f);
-		this->cubeShader->setVec3("viewPos", camera.Position);
-		this->cubeShader->setVec3("light.position", camera.Position);
-
-		// directional light
-		this->cubeShader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-		this->cubeShader->setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-		this->cubeShader->setVec3("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setVec3("dirLight.specular", 1.5f, 1.5f, 1.5f);
-
-		// point light 1
-		this->cubeShader->setVec3("pointLights[0].position", pointLightPositions[0]);
-		this->cubeShader->setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-		this->cubeShader->setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-		this->cubeShader->setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setFloat("pointLights[0].constant", 1.0f);
-		this->cubeShader->setFloat("pointLights[0].linear", 0.09);
-		this->cubeShader->setFloat("pointLights[0].quadratic", 0.032);
-		// point light 2
-		this->cubeShader->setVec3("pointLights[1].position", pointLightPositions[1]);
-		this->cubeShader->setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-		this->cubeShader->setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-		this->cubeShader->setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setFloat("pointLights[1].constant", 1.0f);
-		this->cubeShader->setFloat("pointLights[1].linear", 0.09);
-		this->cubeShader->setFloat("pointLights[1].quadratic", 0.032);
-		// point light 3
-		this->cubeShader->setVec3("pointLights[2].position", pointLightPositions[2]);
-		this->cubeShader->setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-		this->cubeShader->setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-		this->cubeShader->setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setFloat("pointLights[2].constant", 1.0f);
-		this->cubeShader->setFloat("pointLights[2].linear", 0.09);
-		this->cubeShader->setFloat("pointLights[2].quadratic", 0.032);
-		// point light 4
-		this->cubeShader->setVec3("pointLights[3].position", pointLightPositions[3]);
-		this->cubeShader->setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
-		this->cubeShader->setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
-		this->cubeShader->setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setFloat("pointLights[3].constant", 1.0f);
-		this->cubeShader->setFloat("pointLights[3].linear", 0.09);
-		this->cubeShader->setFloat("pointLights[3].quadratic", 0.032);
-
-		// spotLight
-		this->cubeShader->setVec3("spotLight.position", camera.Position);
-		this->cubeShader->setVec3("spotLight.direction", camera.Front);
-		this->cubeShader->setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-		this->cubeShader->setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-		this->cubeShader->setFloat("spotLight.constant", 1.0f);
-		this->cubeShader->setFloat("spotLight.linear", 0.09);
-		this->cubeShader->setFloat("spotLight.quadratic", 0.032);
-		this->cubeShader->setFloat("spotLight.cutOff", glm::cos(glm::radians(10.0f)));
-		this->cubeShader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
-		this->cubeShader->setInt("material.diffuse", 0);
-		this->cubeShader->setInt("material.specular", 1);
-		this->cubeShader->setInt("material.emission", 2);
-		this->cubeShader->setFloat("material.shininess", 64.0f);
+		this->UpdateLighting(projection, view, camera, *this->cubeShader, pointLights);
 
 		updateRender(projection, view, modelMatricesHedge, *Hedges);
 		updateRender(projection, view, modelMatricesGround, *Ground);
@@ -361,11 +295,11 @@ public:
 		}
 	}
 
-	void init()
+	void init(glm::vec3 *enmPos)
 	{
 		Maze myMazeObj;
 		myMazeObj.generateMaze();
-		myMazeObj.manipulate();
+		myMazeObj.manipulate(enmPos);
 		int* temp = myMazeObj.getMaze();
 		myMazeArray = new int[COL * COL];
 		for (unsigned int i = 0; i < COL; i++)
