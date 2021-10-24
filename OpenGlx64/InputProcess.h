@@ -48,13 +48,15 @@ private:
 				return false;
 			}
 		}
+
+		return true;
 	}
 
 	void MoveFront(Player& myPlayer, Camera& camera,
 		Hedge& myHedges, float velocity)
 	{
-		bool moveXPosition = 1;
-		bool moveZPosition = 1;
+		bool moveXPosition = true;
+		bool moveZPosition = true;
 		glm::vec3 prevPos = myPlayer.getPosition();
 		glm::vec3 newPos = glm::vec3(camera.Position.x + camera.Front.x * velocity,
 			myPlayer.getPosition().y, myPlayer.getPosition().z);
@@ -79,6 +81,8 @@ private:
 		{
 			camera.Position.z += camera.Front.z * velocity;
 		}
+		//cout << moveXPosition << " " << moveZPosition << endl;
+		//cout << camera.Position.x << " " << camera.Position.y << endl;
 		myPlayer.setPosition(camera.Position);
 	}
 

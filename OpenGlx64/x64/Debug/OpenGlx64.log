@@ -58,19 +58,21 @@ F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\Ope
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(182,30): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(182,36): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
 F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\Hedge.h(293,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(185,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(193,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(363,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(449,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(557,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(836,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(837,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(841,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(842,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(844,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(845,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(854,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\InputProcess.h(51): warning C4715: 'InputProcess::checkCollision': not all control paths return a value
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(129,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(257,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(265,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(437,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(523,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(631,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(709,28): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(710,31): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(913,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(914,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(918,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(919,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(921,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(922,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+F:\OpenGl\OpenGL\Maze Work\1st\Untitled Survival Game\Untitled Survival Game\OpenGlx64\main.cpp(931,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   SOIL.lib(stb_image_aug.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library

@@ -101,6 +101,78 @@ void controlCameraFixedPosition()
 }
 
 
+void matchEndCameraFixedPosition()
+{
+	camera.Position.x = 59.4987f;
+	camera.Position.y = 10.9417f;
+	camera.Position.z = 60.5954f;
+	camera.Front.x = -0.696269f;
+	camera.Front.y = -0.0505934f;
+	camera.Front.z = -0.715996f;
+	camera.Pitch = 0.0f;
+}
+
+
+
+void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName)
+{
+	float degree = 0;
+	Button matchEndText("menuShaderVertex.shader", "menuShaderFragment.shader", modelName);
+	matchEndCameraFixedPosition();
+
+	float xVel = -10.7183077f;
+	float yVel = -0.902729f;
+	float zVel = -11.005123f;
+
+	while (!glfwWindowShouldClose(window))
+	{
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// render
+		// ------
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		degree += 1.0f * deltaTime;
+		if (degree > 360)
+		{
+			degree = 0;
+		}
+
+		pointLightPositions[0] = glm::vec3(cos(degree) * 15.f, sin(degree) * 15.0f, pointLightPositions[0].z);
+		pointLightPositions[1] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, pointLightPositions[1].z);
+		pointLightPositions[2] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, sin(degree) * 15.f);
+		pointLightPositions[3] = glm::vec3(sin(degree) * 6.f + 1.5f, sin(degree + degree / 2.0f) * 5.0f + 1.0f, cos(degree) * 6.0f + 1.5f);
+
+		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
+		//cout << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << "\n";
+
+		camera.Position.x += xVel * deltaTime;
+		camera.Position.y += yVel * deltaTime;
+		camera.Position.z += zVel * deltaTime;
+
+		// configure transformation matrices
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+
+
+		matchEndText.Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
+
+		if (camera.Position.x <= -10.0632f)
+		{
+			return;
+		}
+
+		//processInput(window);
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window);
+		//glfwPollEvents();
+	}
+}
 
 void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 {
@@ -187,7 +259,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-		
+
 		// per-frame time logic
 		// --------------------
 		float currentFrame = glfwGetTime();
@@ -207,9 +279,9 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 
 
 		//simple input
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || 
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS ||
 			isPlayerDead ||
-			collisionDetection.SphereRectCollision(myPlayer, endPoint) )
+			collisionDetection.SphereRectCollision(myPlayer, endPoint))
 		{
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
@@ -221,12 +293,14 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			if (isPlayerDead)
 			{
 				// show death msg
-				cout << "Died\n";
+				//cout << "Died\n";
+				matchEndText(window, mode, "Models/lose/lose.obj");
 			}
 			if (collisionDetection.SphereRectCollision(myPlayer, endPoint))
 			{
 				// show win msg
-				cout << "WIN\n";
+				//cout << "WIN\n";
+				matchEndText(window, mode, "Models/win/win.obj");
 			}
 
 			return;
@@ -235,7 +309,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 
 		// render
 		// ------
-		glClearColor((playTime/49.0f) - 0.39f, (playTime / 49.0f) - 0.11f, (playTime / 49.0f), 1.0f);
+		glClearColor((playTime / 49.0f) - 0.39f, (playTime / 49.0f) - 0.11f, (playTime / 49.0f), 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// configure transformation matrices
@@ -631,6 +705,9 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 				myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 				glfwSwapBuffers(window);
 				gameZone(window, mode);
+
+				lastFrame = glfwGetTime();
+				deltaTime = glfwGetTime() - lastFrame;
 			}
 			if (selectedButton >= 51 && selectedButton <= 100)
 			{
@@ -735,7 +812,7 @@ int main()
 {
 	//close debug window
 	HWND debugConsole;
-	debugConsole = FindWindowA("ConsoleWindowClass",NULL);
+	debugConsole = FindWindowA("ConsoleWindowClass", NULL);
 	ShowWindow(debugConsole, 0);
 
 	//doEncription();
@@ -811,7 +888,7 @@ int main()
 	glfwTerminate();
 
 	doEncription();
-	ShowWindow(debugConsole, 0);
+	//ShowWindow(debugConsole, 0);
 	return 0;
 }
 

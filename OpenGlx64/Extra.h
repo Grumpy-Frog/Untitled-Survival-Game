@@ -222,6 +222,12 @@ void doEncription()
 
 	encript("Models/Player/cube.obj", "Models/Player/cube.RAFI");
 	encript("Models/Player/textured-cube.mtl", "Models/Player/textured-cube.MAHMUD");
+
+	encript("Models/win/win.obj", "Models/win/win.RAFI");
+	encript("Models/win/win.mtl", "Models/win/win.MAHMUD");
+
+	encript("Models/lose/lose.obj", "Models/lose/lose.RAFI");
+	encript("Models/lose/lose.mtl", "Models/lose/lose.MAHMUD");
 }
 
 void doDecription()
@@ -271,4 +277,10 @@ void doDecription()
 
 	decript("Models/Player/cube.obj", "Models/Player/cube.RAFI");
 	decript("Models/Player/textured-cube.mtl", "Models/Player/textured-cube.MAHMUD");
+
+	decript("Models/win/win.obj", "Models/win/win.RAFI");
+	decript("Models/win/win.mtl", "Models/win/win.MAHMUD");
+
+	decript("Models/lose/lose.obj", "Models/lose/lose.RAFI");
+	decript("Models/lose/lose.mtl", "Models/lose/lose.MAHMUD");
 }
