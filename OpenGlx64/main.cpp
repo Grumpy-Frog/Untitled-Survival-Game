@@ -118,6 +118,8 @@ void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName)
 {
 	float degree = 0;
 	Button matchEndText("menuShaderVertex.shader", "menuShaderFragment.shader", modelName);
+	glm::vec3 pos = glm::vec3(matchEndText.getPosition().x , matchEndText.getPosition().y -2.5f, matchEndText.getPosition().z);
+	matchEndText.setPosition(pos);
 	matchEndCameraFixedPosition();
 
 	float xVel = -10.7183077f;
@@ -144,7 +146,7 @@ void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName)
 		pointLightPositions[0] = glm::vec3(cos(degree) * 15.f, sin(degree) * 15.0f, pointLightPositions[0].z);
 		pointLightPositions[1] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, pointLightPositions[1].z);
 		pointLightPositions[2] = glm::vec3(sin(degree) * 15.f, cos(degree) * 15.f, sin(degree) * 15.f);
-		pointLightPositions[3] = glm::vec3(sin(degree) * 6.f + 1.5f, sin(degree + degree / 2.0f) * 5.0f + 1.0f, cos(degree) * 6.0f + 1.5f);
+		pointLightPositions[3] = glm::vec3(sin(degree) * 6.f + 1.5f, sin(degree + degree) * 5.0f + 3.0f, cos(degree) * 6.0f + 1.5f);
 
 		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
 		//cout << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << "\n";
@@ -224,7 +226,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 		Enemy  myEnemy1("menuShaderVertex.shader", "menuShaderFragment.shader", animationsModelNames,
 			enemyPositions[i], 1, &deltaTime,
 			&myPlayer, myMazeArray);
-		myEnemy1.setRadious(1.5f);
+		myEnemy1.setRadious(2.0f);
 		myEnemies.push_back(myEnemy1);
 	}
 
