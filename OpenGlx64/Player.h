@@ -3,6 +3,10 @@
 
 #include "Entity.h"
 #include "MazeGenerator.h"
+
+#include "OpenAL/SoundDevice.h"
+#include "OpenAl/SoundEffectsLibrary.h"
+
 using namespace std;
 
 class Player : public Entity
@@ -12,6 +16,10 @@ private:
 	int* tempMaze;
 	bool isJumping = false;
 	bool torchOn = false;
+
+
+	SoundDevice* sd; 
+
 
 private:
 	int prev_i = 1;
@@ -48,17 +56,13 @@ public:
 
 	}
 
-	void Update()
+	void Update(Camera &camera)
 	{
-		
+		this->sd->SetLocation(camera.Position.x, camera.Position.y, camera.Position.z);
+		this->sd->SetOrientation(camera.Front.x, camera.Front.y, camera.Front.z,
+			camera.Up.x, camera.Up.y, camera.Up.z);
 	}
 
-	void printPos()
-	{
-		cout
-			<< int(glm::round(this->getPosition().x)) / 2 << " "
-			<< int(glm::round(this->getPosition().z)) / 2 << "\n";
-	}
 
 	glm::vec2 change_maze_according_to_player_pos()
 	{

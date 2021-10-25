@@ -22,6 +22,11 @@
 #include "LightCube.h"
 #include "Extra.h"
 
+
+#include "OpenAL/SoundDevice.h"
+#include "OpenAL/SoundEffectsPlayer.h"
+#include "OpenAL/SoundEffectsLibrary.h"
+
 #include <iostream>
 //#include <conio.h>
 
@@ -47,6 +52,8 @@ Camera camera(glm::vec3(2.0f, 1.0f, 2.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
+
+
 
 
 // timing
@@ -205,6 +212,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 	}
 	*/
 
+	
 
 	// Player
 	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
@@ -225,7 +233,8 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 	{
 		Enemy  myEnemy1("menuShaderVertex.shader", "menuShaderFragment.shader", animationsModelNames,
 			enemyPositions[i], 1, &deltaTime,
-			&myPlayer, myMazeArray);
+			&myPlayer, myMazeArray,
+			"Audio/sci-fidrone.ogg");
 		myEnemy1.setRadious(2.0f);
 		myEnemies.push_back(myEnemy1);
 	}
@@ -275,7 +284,10 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 		{
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
-				myEnemies[i].setActive(true);
+				if (myEnemies[i].getActive() == false)
+				{
+					myEnemies[i].setActive(true);
+				}
 			}
 		}
 
@@ -304,7 +316,6 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 				//cout << "WIN\n";
 				matchEndText(window, mode, "Models/win/win.obj");
 			}
-
 			return;
 		}
 
@@ -318,8 +329,6 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 
-
-
 		if (debug_mode)
 		{
 			//camera = camera2;
@@ -328,7 +337,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			myHedges.update(projection, view, camera, pointLightPositions);
 			myPlayer.Render(projection, view, camera);
 			myPlayer.processInput(window);
-			myPlayer.Update();
+			myPlayer.Update(camera);
 
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
@@ -377,7 +386,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
 			view = camera.GetViewMatrix();
 			myHedges.update(projection, view, camera, pointLightPositions);
-			myPlayer.Update();
+			myPlayer.Update(camera);
 
 			degree += 0.5f * deltaTime;
 			if (degree > 360)
@@ -402,6 +411,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			}
 			myinputProcess.processInputKeyboard(window, camera, myPlayer, myHedges, deltaTime, pointLightPositions);
 		}
+
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -515,6 +525,7 @@ void credits(GLFWwindow* window, const GLFWvidmode* mode)
 		myLightCubes.push_back(temp);
 	}
 
+	
 
 	// render loop
 	// -----------
@@ -553,7 +564,6 @@ void credits(GLFWwindow* window, const GLFWvidmode* mode)
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 
-
 		degree += 1.0f * deltaTime;
 		if (degree > 360)
 		{
@@ -586,6 +596,17 @@ void credits(GLFWwindow* window, const GLFWvidmode* mode)
 
 void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 {
+	SoundDevice* sd = LISTENER->Get();
+	int SciFiSound = SE_LOAD("Audio/sci-fidrone.ogg");
+	SoundEffectsPlayer menuSoundEffect;
+
+	ALint attunation = AL_INVERSE_DISTANCE_CLAMPED;
+	sd->SetAttunation(attunation);
+
+	menuSoundEffect.SetLooping(true);
+	menuSoundEffect.SetPosition(0,0,0);
+	menuSoundEffect.Play(SciFiSound);
+
 	vector<Button>myButtons;
 	string modelName = "Models/Menu/Menu1.obj";
 	for (int i = 1; i <= 6; i++)
@@ -700,6 +721,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 		}
 		else if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 		{
+			menuSoundEffect.Stop();
 			if (selectedButton >= 1 && selectedButton <= 50)
 			{
 				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -723,6 +745,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 			{
 				credits(window, mode);
 			}
+			menuSoundEffect.Play(SciFiSound);
 		}
 		if (selectedButton <= 0)
 		{
@@ -800,7 +823,9 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 		}
 
 		//processInput(window);
-
+		sd->SetLocation(6.f, 6.f, 6.f);
+		sd->SetOrientation(camera.Front.x, camera.Front.y, camera.Front.z,
+			camera.Up.x, camera.Up.y, camera.Up.z);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -813,9 +838,9 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 int main()
 {
 	//close debug window
-	HWND debugConsole;
-	debugConsole = FindWindowA("ConsoleWindowClass", NULL);
-	ShowWindow(debugConsole, 0);
+	//HWND debugConsole;
+	//debugConsole = FindWindowA("ConsoleWindowClass", NULL);
+	//ShowWindow(debugConsole, 0);
 
 	//doEncription();
 	//return 0;

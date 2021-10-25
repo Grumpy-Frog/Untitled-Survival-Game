@@ -11,6 +11,9 @@
 #include "Animation.h"
 #include "Light.h"
 
+#include "OpenAL/SoundDevice.h"
+#include "OpenAL/SoundEffectsPlayer.h"
+#include "OpenAL/SoundEffectsPlayer.h"
 
 class Node
 {
@@ -208,6 +211,9 @@ private:
 	int* tempMaze;
 	Player* myPlayer_ptr;
 	A_Star_Path* aStar;
+	SoundEffectsPlayer *enemySoundPlayer;
+	int enemyRoarAudio = 0;
+
 	int enemyID;
 
 	float ii = 0.0f;
@@ -341,16 +347,35 @@ private:
 			if ( (getDistance(myPlayer_ptr->getPosition(), this->getPosition()) <= 15.0f) && 
 				(myPlayer_ptr->getJumpStatus() || myPlayer_ptr->getTorchStatus()))
 			{
-				this->isActive = true;
+				if (this->isActive == false)
+				{
+					this->setActive(true);
+				}
 			}
 		}
 	}
 
+	void initRoarAudio(const char *s)
+	{
+		this->enemyRoarAudio = SoundEffectsLibrary::Get()->Load(s);
+	}
+
+	void playSound()
+	{
+		this->enemySoundPlayer->SetLooping(true);
+		this->enemySoundPlayer->Play(this->enemyRoarAudio);
+	}
+
+	void StopSound()
+	{
+		this->enemySoundPlayer->Stop();
+	}
 
 public:
 	Enemy(const char* vertexShader, const char* fragmentShader, vector<string>& model,
 		glm::vec3 position, int id, float* dlTime,
-		Player* player_ptr, int* maze)
+		Player* player_ptr, int* maze, 
+		const char *enemyRoarAudio)
 		: Entity(vertexShader, fragmentShader, model[0], glm::vec3(0.60f, 0.60f, 0.60f))
 	{
 		this->myPlayer_ptr = player_ptr;
@@ -360,6 +385,9 @@ public:
 		this->setPosition(position);
 		this->setMaze();
 		this->setId(id);
+
+		this->enemySoundPlayer = new SoundEffectsPlayer;
+		this->initRoarAudio(enemyRoarAudio);
 
 		this->myAnimation1 = new Animation(model);
 		myAnimation1->setAnimModel();
@@ -383,7 +411,9 @@ public:
 
 	~Enemy()
 	{
-		
+		//this->enemySoundPlayer.Stop();
+		//this->enemySoundPlayer.~SoundEffectsPlayer();
+		//delete this->enemySoundPlayer;
 	}
 
 	void deallocEnem()
@@ -405,6 +435,19 @@ public:
 		calculatePlayer();
 		this->UpdateLighting(projection, view, camera, *this->myShader, pointLights);
 		this->Render(projection, view, camera);
+		
+		if (this->getActive()==true)
+		{
+			this->enemySoundPlayer->SetPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+		}
+
+		if (this->getActive() == true)
+		{
+			if (this->enemySoundPlayer->isPlaying() == false)
+			{
+				this->enemySoundPlayer->Play(this->enemyRoarAudio);
+			}
+		}
 	}
 
 public:
@@ -432,7 +475,11 @@ public:
 
 	void setActive(bool active = true)
 	{
-		this->isActive = active;
+		if (this->isActive == false)
+		{
+			this->isActive = active;
+			this->playSound();
+		}
 	}
 
 	bool getActive()

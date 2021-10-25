@@ -16,4 +16,8 @@ Player::Player(const char* vertexShader, const char* fragmentShader, string mode
 	}
 
 	this->speed = speed;
+
+	ALint attunation = AL_INVERSE_DISTANCE_CLAMPED;
+	this->sd = SoundDevice::Get();
+	this->sd->SetAttunation(attunation);
 }
