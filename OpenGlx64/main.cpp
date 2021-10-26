@@ -54,8 +54,6 @@ float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
 
 
-
-
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -121,17 +119,26 @@ void matchEndCameraFixedPosition()
 
 
 
-void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName)
+void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName,const char *soundName)
 {
 	float degree = 0;
 	Button matchEndText("menuShaderVertex.shader", "menuShaderFragment.shader", modelName);
 	glm::vec3 pos = glm::vec3(matchEndText.getPosition().x , matchEndText.getPosition().y -2.5f, matchEndText.getPosition().z);
 	matchEndText.setPosition(pos);
 	matchEndCameraFixedPosition();
+	float xVel = -6.95619f;
+	float yVel = -0.505446f;
+	float zVel = -7.1533f;
 
-	float xVel = -10.7183077f;
-	float yVel = -0.902729f;
-	float zVel = -11.005123f;
+	//Sounds
+	SoundDevice* sd = LISTENER->Get();
+	ALint attunation = AL_INVERSE_DISTANCE_CLAMPED;
+	sd->SetAttunation(attunation);
+
+	SoundEffectsPlayer soundEffectPlayer;
+	int gameEndSound = SE_LOAD(soundName);
+	soundEffectPlayer.SetLooping(false);
+	soundEffectPlayer.Play(gameEndSound);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -162,6 +169,11 @@ void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName)
 		camera.Position.y += yVel * deltaTime;
 		camera.Position.z += zVel * deltaTime;
 
+		soundEffectPlayer.SetPosition(camera.Position);
+		sd->SetLocation(camera.Position);
+		sd->SetOrientation(camera.Front.x, camera.Front.y, camera.Front.z,
+			camera.Up.x, camera.Up.y, camera.Up.z);
+
 		// configure transformation matrices
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
@@ -169,7 +181,7 @@ void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName)
 
 		matchEndText.Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 
-		if (camera.Position.x <= -10.0632f)
+		if (camera.Position.x <= -11.5632f)
 		{
 			return;
 		}
@@ -234,7 +246,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 		Enemy  myEnemy1("menuShaderVertex.shader", "menuShaderFragment.shader", animationsModelNames,
 			enemyPositions[i], 1, &deltaTime,
 			&myPlayer, myMazeArray,
-			"Audio/sci-fidrone.ogg");
+			"Audio/enemyRoar.ogg");
 		myEnemy1.setRadious(2.0f);
 		myEnemies.push_back(myEnemy1);
 	}
@@ -263,6 +275,13 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 	CubeCollider endPoint(endPointPosition);
 	CollisionDetection collisionDetection;
 
+	//Sound
+	SoundEffectsPlayer endPointSoundPlayer;
+	int endPointMusic = SE_LOAD("Audio/endPoint.ogg");
+	endPointSoundPlayer.SetPosition(endPointPosition.x, endPointPosition.y, endPointPosition.z);
+	endPointSoundPlayer.SetLooping(true);
+	endPointSoundPlayer.Play(endPointMusic);
+
 	bool debug_mode = 0;
 	deltaTime = 0.0f;
 	lastFrame = glfwGetTime();
@@ -270,13 +289,12 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-
 		// per-frame time logic
 		// --------------------
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		if (playTime < 46.0f)
+		if (playTime < 40.0f)
 		{
 			playTime += deltaTime;
 		}
@@ -297,6 +315,11 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			isPlayerDead ||
 			collisionDetection.SphereRectCollision(myPlayer, endPoint))
 		{
+			if (endPointSoundPlayer.isPlaying())
+			{
+				endPointSoundPlayer.Stop();
+			}
+
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
 				myEnemies[i].dealloc();
@@ -308,13 +331,13 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			{
 				// show death msg
 				//cout << "Died\n";
-				matchEndText(window, mode, "Models/lose/lose.obj");
+				matchEndText(window, mode, "Models/lose/lose.obj","Audio/gameOver.ogg");
 			}
 			if (collisionDetection.SphereRectCollision(myPlayer, endPoint))
 			{
 				// show win msg
 				//cout << "WIN\n";
-				matchEndText(window, mode, "Models/win/win.obj");
+				matchEndText(window, mode, "Models/win/win.obj", "Audio/gameWon.ogg");
 			}
 			return;
 		}
@@ -596,17 +619,24 @@ void credits(GLFWwindow* window, const GLFWvidmode* mode)
 
 void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 {
+	menuCameraFixedPosition();
+
+	//Sounds
 	SoundDevice* sd = LISTENER->Get();
-	int SciFiSound = SE_LOAD("Audio/sci-fidrone.ogg");
+	int SciFiSound = SE_LOAD("Audio/mainMenu.ogg");
 	SoundEffectsPlayer menuSoundEffect;
 
 	ALint attunation = AL_INVERSE_DISTANCE_CLAMPED;
 	sd->SetAttunation(attunation);
+	sd->SetLocation(camera.Position);
+	sd->SetOrientation(camera.Front.x, camera.Front.y, camera.Front.z,
+		camera.Up.x, camera.Up.y, camera.Up.z);
 
 	menuSoundEffect.SetLooping(true);
 	menuSoundEffect.SetPosition(0,0,0);
 	menuSoundEffect.Play(SciFiSound);
 
+	//buttons
 	vector<Button>myButtons;
 	string modelName = "Models/Menu/Menu1.obj";
 	for (int i = 1; i <= 6; i++)
@@ -623,6 +653,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 
 	int selectedButton = 1;
 
+	//lights
 	vector<LightCube>myLightCubes;
 	for (int i = 0; i < 4; i++)
 	{
@@ -682,11 +713,16 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 			{
 				if (selectedButton >= 1 && selectedButton <= 50)
 				{
+					menuSoundEffect.Pause();
 					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 					myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 					glfwSwapBuffers(window);
 					gameZone(window, mode);
+					menuSoundEffect.Play(SciFiSound);
+
+					lastFrame = glfwGetTime();
+					deltaTime = glfwGetTime() - lastFrame;
 				}
 				if (selectedButton >= 51 && selectedButton <= 100)
 				{
@@ -721,17 +757,16 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 		}
 		else if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 		{
-			menuSoundEffect.Stop();
 			if (selectedButton >= 1 && selectedButton <= 50)
 			{
+				menuSoundEffect.Pause();
 				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 				glfwSwapBuffers(window);
 				gameZone(window, mode);
+				menuSoundEffect.Play(SciFiSound);
 
-				lastFrame = glfwGetTime();
-				deltaTime = glfwGetTime() - lastFrame;
 			}
 			if (selectedButton >= 51 && selectedButton <= 100)
 			{
@@ -745,7 +780,6 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 			{
 				credits(window, mode);
 			}
-			menuSoundEffect.Play(SciFiSound);
 		}
 		if (selectedButton <= 0)
 		{
@@ -823,9 +857,11 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 		}
 
 		//processInput(window);
-		sd->SetLocation(6.f, 6.f, 6.f);
-		sd->SetOrientation(camera.Front.x, camera.Front.y, camera.Front.z,
-			camera.Up.x, camera.Up.y, camera.Up.z);
+		menuSoundEffect.SetPosition(
+			sin(degree) * 6.f + camera.Position.x, 
+			sin(degree + degree / 2.0f) * 5.0f + camera.Position.y,
+			cos(degree) * 6.0f + +camera.Position.z);
+		sd->SetLocation(camera.Position);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -838,9 +874,9 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 int main()
 {
 	//close debug window
-	//HWND debugConsole;
-	//debugConsole = FindWindowA("ConsoleWindowClass", NULL);
-	//ShowWindow(debugConsole, 0);
+	HWND debugConsole;
+	debugConsole = FindWindowA("ConsoleWindowClass", NULL);
+	ShowWindow(debugConsole, 0);
 
 	//doEncription();
 	//return 0;

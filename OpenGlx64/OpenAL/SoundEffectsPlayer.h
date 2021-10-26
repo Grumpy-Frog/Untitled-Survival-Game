@@ -1,5 +1,10 @@
 #pragma once
 #include <AL\al.h>
+
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
 class SoundEffectsPlayer
 {
 public:
@@ -14,6 +19,7 @@ public:
 	void SetBufferToPlay(const ALuint& buffer_to_play);
 	void SetLooping(const bool& loop);
 	void SetPosition(const float& x, const float& y, const float& z);
+	void SetPosition(glm::vec3);
 
 	bool isPlaying();
 

@@ -66,6 +66,13 @@ void SoundEffectsPlayer::SetPosition(const float& x, const float& y, const float
 	AL_CheckAndThrow();
 }
 
+
+void SoundEffectsPlayer::SetPosition(glm::vec3 newPos)
+{
+	alSource3f(p_Source, AL_POSITION, newPos.x, newPos.y, newPos.z);
+	AL_CheckAndThrow();
+}
+
 bool SoundEffectsPlayer::isPlaying()
 {
 	ALint playState;

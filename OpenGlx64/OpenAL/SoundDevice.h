@@ -1,6 +1,10 @@
 #pragma once
 #include <AL\alc.h>
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
 /// <summary>
 /// Singleton class that initilizes our sound hardware device and allows
 /// us to change our listener values.
@@ -21,6 +25,7 @@ public:
 
 	void SetAttunation(int key);
 	void SetLocation(const float& x, const float& y, const float& z);
+	void SetLocation(glm::vec3 newPos);
 	void SetOrientation(
 		const float& atx, const float& aty, const float& atz,
 		const float& upx, const float& upy, const float& upz);

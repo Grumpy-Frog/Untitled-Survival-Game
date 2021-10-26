@@ -212,7 +212,9 @@ private:
 	Player* myPlayer_ptr;
 	A_Star_Path* aStar;
 	SoundEffectsPlayer *enemySoundPlayer;
+	SoundEffectsPlayer *activationSoundPlayer;
 	int enemyRoarAudio = 0;
+	int activationSound = 0;
 
 	int enemyID;
 
@@ -388,6 +390,8 @@ public:
 
 		this->enemySoundPlayer = new SoundEffectsPlayer;
 		this->initRoarAudio(enemyRoarAudio);
+		this->activationSoundPlayer = new SoundEffectsPlayer;
+		this->activationSound = SE_LOAD("Audio/enemyActive.ogg");
 
 		this->myAnimation1 = new Animation(model);
 		myAnimation1->setAnimModel();
@@ -427,6 +431,10 @@ public:
 			delete this->tempMaze;
 		}
 
+		if (this->enemySoundPlayer->isPlaying())
+		{
+			this->enemySoundPlayer->Stop();
+		}
 	}
 
 
@@ -479,6 +487,7 @@ public:
 		{
 			this->isActive = active;
 			this->playSound();
+			this->activationSoundPlayer->Play(this->activationSound);
 		}
 	}
 

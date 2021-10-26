@@ -84,6 +84,12 @@ void SoundDevice::SetLocation(const float& x, const float& y, const float& z)
 	AL_CheckAndThrow();
 }
 
+void SoundDevice::SetLocation(glm::vec3 newPos)
+{
+	alListener3f(AL_POSITION, newPos.x, newPos.y, newPos.z);
+	AL_CheckAndThrow();
+}
+
 /// <summary>
 /// Sets the orientation of our listener using 'look at' (or foward vector) and 'up' direction
 /// </summary>
