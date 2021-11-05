@@ -3,28 +3,35 @@
 
 #include "Entity.h"
 #include "MazeGenerator.h"
+#include "Light.h"
 
 #include "OpenAL/SoundDevice.h"
 #include "OpenAl/SoundEffectsLibrary.h"
+#include "OpenAL/SoundEffectsPlayer.h"
 
 using namespace std;
 
-class Player : public Entity
+class Player : public Entity , public Light
 {
 private:
 	int* myMaze;
 	int* tempMaze;
 	bool isJumping = false;
 	bool torchOn = false;
+	bool isWalking = false;
 
-
+	int soundState = 0;
+	// sounds
 	SoundDevice* sd; 
+	SoundEffectsPlayer* soundPlayer;
+	int walking = 0;
+	int running = 0;
+	int jumping = 0;
 
 
 private:
 	int prev_i = 1;
 	int prev_j = 1;
-
 	float speed;
 
 public:
@@ -48,6 +55,31 @@ public:
 		return this->torchOn;
 	}
 
+	void setWalking(bool s)
+	{
+		this->isWalking = s;
+	}
+
+	void setSoundState()
+	{
+		if (this->isWalking)
+		{
+			if (this->getSpeed() == 7.5f)
+			{
+				this->soundState = 2;
+			}
+			else
+			{
+				this->soundState = 1;
+			}
+		}
+	}
+
+	void setSoundState(int a)
+	{
+		this->soundState = a;
+	}
+
 public:
 	Player(const char* vertexShader, const char* fragmentShader, string model, int* maze, float speed = 10.0f);
 
@@ -61,6 +93,13 @@ public:
 		this->sd->SetLocation(camera.Position.x, camera.Position.y, camera.Position.z);
 		this->sd->SetOrientation(camera.Front.x, camera.Front.y, camera.Front.z,
 			camera.Up.x, camera.Up.y, camera.Up.z);
+
+		this->soundPlayer->SetPosition(camera.Position);
+		this->setSoundState();
+		if (this->soundState != 0)
+		{
+			PlaySound();
+		}
 	}
 
 
@@ -116,6 +155,32 @@ public:
 		}
 	}
 
+	void PlaySound()
+	{
+		if (this->soundState == 2)
+		{
+			if (this->soundPlayer->isPlaying() == false)
+			{
+				this->soundPlayer->Play(this->running);
+			}
+		}
+		else
+		{
+			this->soundPlayer->Stop();
+		}
+		
+		if (this->soundState == 3)
+		{
+			this->soundPlayer->Stop();
+			if (this->soundPlayer->isPlaying() == false)
+			{
+				this->soundPlayer->Play(this->jumping);
+			}
+		}
+		this->soundState = 0;
+		this->isWalking = false;
+	}
+
 	void setSpeed(float newSpeed)
 	{
 		this->speed = newSpeed;
@@ -125,6 +190,8 @@ public:
 	{
 		return this->speed;
 	}
+
+	
 };
 
 #endif //PLAYER_H

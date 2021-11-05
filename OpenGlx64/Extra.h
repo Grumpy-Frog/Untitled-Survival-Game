@@ -15,7 +15,7 @@ glm::vec3 pointLightPositions[] =
 };
 
 // set up vertex data (and buffer(s)) and configure vertex attributes
-		// ------------------------------------------------------------------
+// ------------------------------------------------------------------
 float verticess[] =
 {
 	// positions          // normals           // texture coords

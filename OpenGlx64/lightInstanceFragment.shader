@@ -95,7 +95,7 @@ void main()
     //distance darkness
     float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
     //darkness
-    result -= vec3(depth);
+   // result -= vec3(depth);
 
     vec4 textureCOLour = texture(material.diffuse, TexCoords);
     if (textureCOLour.a < 0.5) {

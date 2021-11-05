@@ -20,4 +20,10 @@ Player::Player(const char* vertexShader, const char* fragmentShader, string mode
 	ALint attunation = AL_INVERSE_DISTANCE_CLAMPED;
 	this->sd = SoundDevice::Get();
 	this->sd->SetAttunation(attunation);
+
+	this->soundPlayer = new SoundEffectsPlayer;
+	this->soundPlayer->SetLooping(false);
+	//this->walking = SE_LOAD("Audio/walking.ogg");
+	this->running = SE_LOAD("Audio/running.ogg");
+	this->jumping = SE_LOAD("Audio/jumping.ogg");
 }

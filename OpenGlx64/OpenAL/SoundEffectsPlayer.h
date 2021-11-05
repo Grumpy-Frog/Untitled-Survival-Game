@@ -7,6 +7,10 @@
 
 class SoundEffectsPlayer
 {
+private:
+	ALuint p_Source;
+	ALuint p_Buffer = 0;
+
 public:
 	SoundEffectsPlayer();
 	~SoundEffectsPlayer();
@@ -15,6 +19,7 @@ public:
 	void Stop();
 	void Pause();
 	void Resume();
+	void GainVolume(float newVolume);
 
 	void SetBufferToPlay(const ALuint& buffer_to_play);
 	void SetLooping(const bool& loop);
@@ -22,9 +27,5 @@ public:
 	void SetPosition(glm::vec3);
 
 	bool isPlaying();
-
-private:
-	ALuint p_Source;
-	ALuint p_Buffer = 0;
 };
 

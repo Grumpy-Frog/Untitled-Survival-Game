@@ -53,7 +53,6 @@ public:
 
 private:
 	void checkCompileError(unsigned int shader, std::string type);
-
 };
 
 #endif  // ! SHADER_H

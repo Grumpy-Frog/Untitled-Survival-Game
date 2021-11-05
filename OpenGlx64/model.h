@@ -7,7 +7,6 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 
-
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -15,7 +14,6 @@
 
 #include "mesh.h"
 #include "shader.h"
-
 
 #include <string>
 #include <fstream>
@@ -46,7 +44,6 @@ public:
 	}
 
 	void setModelLocation(string path);
-
 	void Draw(Shader& shader);
 
 private:

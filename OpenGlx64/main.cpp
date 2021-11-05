@@ -7,7 +7,6 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-
 #include "Player.h"
 #include "Enemy.h"
 #include "Hedge.h"
@@ -27,7 +26,14 @@
 #include "OpenAL/SoundEffectsPlayer.h"
 #include "OpenAL/SoundEffectsLibrary.h"
 
+
 #include <iostream>
+#include <cstdio>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
 //#include <conio.h>
 
 
@@ -70,7 +76,6 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-
 void menuCameraFixedPosition()
 {
 	camera.Position.x = 17.3304f;
@@ -93,7 +98,6 @@ void creditCameraFixedPosition()
 	//camera.Pitch = 0.0f;
 }
 
-
 void controlCameraFixedPosition()
 {
 	camera.Position.x = -11.657f;
@@ -104,7 +108,6 @@ void controlCameraFixedPosition()
 	camera.Front.z = 0.507934f;
 	camera.Pitch = 0.0f;
 }
-
 
 void matchEndCameraFixedPosition()
 {
@@ -118,12 +121,67 @@ void matchEndCameraFixedPosition()
 }
 
 
+std::string exec(const char* cmd)
+{
+	char buffer[128];
+	std::string result = "";
+	FILE* pipe = _popen(cmd, "r");
+	if (!pipe) throw std::runtime_error("popen() failed!");
+	try {
+		while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+			result += buffer;
+		}
+	}
+	catch (...) {
+		_pclose(pipe);
+		throw;
+	}
+	_pclose(pipe);
+	return result;
+}
 
-void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName,const char *soundName)
+void checkAuthentication()
+{
+	string myUUID = "39444335-3431-3030-3752-C46516A4C082";
+	//string myUUID = "F3887398-BA56-49CA-92C4-4C9E4C159A94";
+	string result = exec("wmic path win32_computersystemproduct get uuid");
+	string newResult = "";
+	for (int i = result.size() - 7, j = 0; j < 36; i--, j++)
+	{
+		newResult += result[i];
+		//cout<<result[i]<<"X\n";
+	}
+	reverse(newResult.begin(), newResult.end());
+
+	//cout << myUUID.size() << endl;
+	//cout << newResult.size() << endl;
+	//cout << myUUID << endl;
+	//cout << newResult << endl;
+	if (strcmp(myUUID.c_str(), newResult.c_str()) == 0)
+	{
+		cout << "YES\n";
+	}
+	else
+	{
+		cout << "NO\n";
+		MessageBox
+		(
+			NULL,
+			(LPCWSTR)L" It seems like you are not Syed Fateen Navid \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
+			(LPCWSTR)L"Owner Authentication Error!",
+			MB_ICONHAND | MB_DEFBUTTON2
+		);
+		cout << "Please buy this game from Rafi Hassan Chowdhury\nrafihassan@iut-dhaka.edu\n+8801701459732\n";
+		exit(1);
+		return;
+	}
+}
+
+void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName, const char* soundName)
 {
 	float degree = 0;
 	Button matchEndText("menuShaderVertex.shader", "menuShaderFragment.shader", modelName);
-	glm::vec3 pos = glm::vec3(matchEndText.getPosition().x , matchEndText.getPosition().y -2.5f, matchEndText.getPosition().z);
+	glm::vec3 pos = glm::vec3(matchEndText.getPosition().x, matchEndText.getPosition().y - 2.5f, matchEndText.getPosition().z);
 	matchEndText.setPosition(pos);
 	matchEndCameraFixedPosition();
 	float xVel = -6.95619f;
@@ -224,8 +282,6 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 	}
 	*/
 
-	
-
 	// Player
 	Player myPlayer("modelVertex.shader", "modelFragment.shader", "Models/Player/cube.obj",
 		myMazeArray, 7.5f);
@@ -294,9 +350,12 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		if (playTime < 40.0f)
+		if (playTime < 37.0f && !debug_mode)
 		{
 			playTime += deltaTime;
+		}
+		else if (debug_mode)
+		{
 		}
 		else
 		{
@@ -331,7 +390,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			{
 				// show death msg
 				//cout << "Died\n";
-				matchEndText(window, mode, "Models/lose/lose.obj","Audio/gameOver.ogg");
+				matchEndText(window, mode, "Models/lose/lose.obj", "Audio/gameOver.ogg");
 			}
 			if (collisionDetection.SphereRectCollision(myPlayer, endPoint))
 			{
@@ -354,17 +413,38 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 
 		if (debug_mode)
 		{
-			//camera = camera2;
-			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
-			view = camera.GetViewMatrix();
-			myHedges.update(projection, view, camera, pointLightPositions);
-			myPlayer.Render(projection, view, camera);
-			myPlayer.processInput(window);
-			myPlayer.Update(camera);
-
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
 				myEnemies[i].Update(projection, view, camera, pointLightPositions);
+				if (myEnemies[i].getActive())
+				{
+					if (collisionDetection.SphereSphereCollision(myPlayer, myEnemies[i]))
+					{
+						isPlayerDead = true;
+					}
+				}
+			}
+			/// <summary>
+			/// update all models
+			/// </summary>
+			/// <returns></returns>
+			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
+			view = camera.GetViewMatrix();
+			myHedges.update(projection, view, camera, pointLightPositions);
+			myPlayer.Update(camera);
+
+			degree += 0.5f * deltaTime;
+			if (degree > 360)
+			{
+				degree = 0;
+			}
+			//lights
+			pointLightPositions[0] = glm::vec3(32.0f, sin(degree) * 39.0f, cos(degree) * 39.0f + 32.0f);
+
+			for (int i = 0; i < 3; i++)
+			{
+				myLightCubes[i].setPosition(pointLightPositions[i]);
+				myLightCubes[i].Render(projection, view, camera, 0.0f);
 			}
 
 
@@ -381,12 +461,12 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 				}
 			}
 
-			camera.Position.x = 28.8f;
-			camera.Position.y = 88.0f;
-			camera.Position.z = 36.0f;
-			camera.Front.x = 0.0174524f;
-			camera.Front.y = -0.999848f;
-			camera.Front.z = 7.71616e-11f;
+			//camera.Position.x = 28.8f;
+			//camera.Position.y = 88.0f;
+			//camera.Position.z = 36.0f;
+			//camera.Front.x = 0.0174524f;
+			//camera.Front.y = -0.999848f;
+			//camera.Front.z = 7.71616e-11f;
 			processInput(window);
 		}
 		else
@@ -548,7 +628,7 @@ void credits(GLFWwindow* window, const GLFWvidmode* mode)
 		myLightCubes.push_back(temp);
 	}
 
-	
+
 
 	// render loop
 	// -----------
@@ -633,8 +713,9 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 		camera.Up.x, camera.Up.y, camera.Up.z);
 
 	menuSoundEffect.SetLooping(true);
-	menuSoundEffect.SetPosition(0,0,0);
+	menuSoundEffect.SetPosition(0, 0, 0);
 	menuSoundEffect.Play(SciFiSound);
+	menuSoundEffect.GainVolume(1000.0f);
 
 	//buttons
 	vector<Button>myButtons;
@@ -858,7 +939,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 
 		//processInput(window);
 		menuSoundEffect.SetPosition(
-			sin(degree) * 6.f + camera.Position.x, 
+			sin(degree) * 6.f + camera.Position.x,
 			sin(degree + degree / 2.0f) * 5.0f + camera.Position.y,
 			cos(degree) * 6.0f + +camera.Position.z);
 		sd->SetLocation(camera.Position);
@@ -878,11 +959,14 @@ int main()
 	debugConsole = FindWindowA("ConsoleWindowClass", NULL);
 	ShowWindow(debugConsole, 0);
 
+	checkAuthentication();
+
 	//doEncription();
 	//return 0;
 	doDecription();
 	// glfw: initialize and configure
 	// ------------------------------
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);

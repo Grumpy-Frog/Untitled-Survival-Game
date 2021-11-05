@@ -168,7 +168,7 @@ int* Maze::getMaze()
 
 void Maze::manipulate(glm::vec3* enemyPositions)
 {
-    myMaze[17] = 0;
+    //myMaze[17] = 0;
     myMaze[1073] = 0;
 
     

@@ -15,8 +15,6 @@ using namespace std;
 
 const int COL = (16 * 2) + 1;
 
-
-
 class Grid
 {
 private:

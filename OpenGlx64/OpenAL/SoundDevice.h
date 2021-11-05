@@ -15,6 +15,14 @@
 
 class SoundDevice
 {
+private:
+	SoundDevice();
+	~SoundDevice();
+
+	ALCdevice* p_ALCDevice;
+	ALCcontext* p_ALCContext;
+
+
 public:
 	static SoundDevice* Get();
 	static void Init();
@@ -30,13 +38,6 @@ public:
 		const float& atx, const float& aty, const float& atz,
 		const float& upx, const float& upy, const float& upz);
 	void SetGain(const float& val);
-
-private:
-	SoundDevice();
-	~SoundDevice();
-
-	ALCdevice* p_ALCDevice;
-	ALCcontext* p_ALCContext;
 
 };
 

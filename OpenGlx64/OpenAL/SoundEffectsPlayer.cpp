@@ -44,6 +44,11 @@ void SoundEffectsPlayer::Resume()
 	AL_CheckAndThrow();
 }
 
+void SoundEffectsPlayer::GainVolume(float newVolume)
+{
+	alSourcef(p_Source, AL_GAIN, newVolume);
+}
+
 void SoundEffectsPlayer::SetBufferToPlay(const ALuint& buffer_to_play)
 {
 	if (buffer_to_play != p_Buffer)
