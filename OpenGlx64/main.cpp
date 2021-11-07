@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 //#include <stb_image.h>
 
-
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -52,13 +51,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
-
 // camera
 Camera camera(glm::vec3(2.0f, 1.0f, 2.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
-
 
 // timing
 float deltaTime = 0.0f;
@@ -120,7 +117,6 @@ void matchEndCameraFixedPosition()
 	camera.Pitch = 0.0f;
 }
 
-
 std::string exec(const char* cmd)
 {
 	char buffer[128];
@@ -142,8 +138,10 @@ std::string exec(const char* cmd)
 
 void checkAuthentication()
 {
-	string myUUID = "39444335-3431-3030-3752-C46516A4C082";
-	//string myUUID = "F3887398-BA56-49CA-92C4-4C9E4C159A94";
+	string myUUID = "39444335-3431-3030-3752-C46516A4C082"; //rafi
+	//string myUUID = "F3887398-BA56-49CA-92C4-4C9E4C159A94"; // fateen
+	//string myUUID = "73C28570-CEE9-0000-0000-000000000000"; // mahmud
+
 	string result = exec("wmic path win32_computersystemproduct get uuid");
 	string newResult = "";
 	for (int i = result.size() - 7, j = 0; j < 36; i--, j++)
@@ -167,7 +165,7 @@ void checkAuthentication()
 		MessageBox
 		(
 			NULL,
-			(LPCWSTR)L" It seems like you are not Syed Fateen Navid \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
+			(LPCWSTR)L" It seems like you are not Syed Fateen Navid Hyder \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
 			(LPCWSTR)L"Owner Authentication Error!",
 			MB_ICONHAND | MB_DEFBUTTON2
 		);
@@ -413,17 +411,16 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 
 		if (debug_mode)
 		{
+
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
 				myEnemies[i].Update(projection, view, camera, pointLightPositions);
-				if (myEnemies[i].getActive())
+				if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && myEnemies[3].getActive() == 0)
 				{
-					if (collisionDetection.SphereSphereCollision(myPlayer, myEnemies[i]))
-					{
-						isPlayerDead = true;
-					}
+					myEnemies[3].setActive(1);
 				}
 			}
+
 			/// <summary>
 			/// update all models
 			/// </summary>
@@ -460,6 +457,8 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 					cout << "\n";
 				}
 			}
+
+
 
 			//camera.Position.x = 28.8f;
 			//camera.Position.y = 88.0f;
@@ -1033,12 +1032,10 @@ int main()
 	mainMenu(window, mode);
 
 	glfwTerminate();
-
 	doEncription();
 	//ShowWindow(debugConsole, 0);
 	return 0;
 }
-
 
 
 

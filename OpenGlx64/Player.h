@@ -190,8 +190,6 @@ public:
 	{
 		return this->speed;
 	}
-
-	
 };
 
 #endif //PLAYER_H
