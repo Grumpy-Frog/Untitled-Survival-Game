@@ -3,8 +3,8 @@
 
 Light::Light()
 {
-	this->ambient = 0.0f;
-	this->counter = 0.01f;
+	this->ambient = 0.2f;
+	this->counter = 1;
 }
 
 Light::~Light()
@@ -12,10 +12,11 @@ Light::~Light()
 
 }
 
-void Light::UpdateLighting(glm::mat4& projection, glm::mat4& view, Camera& camera, Shader& myShader,
+
+void Light::UpdateLighting(glm::mat4& projection, glm::mat4& view, Camera& camera, Shader& myShader,float &deltaTime,
 	glm::vec3* pointLightPositions)
 {
-	updateAmbient();
+	updateAmbient(deltaTime);
 	myShader.use();
 	myShader.setMat4("projection", projection);
 	myShader.setMat4("view", view);
@@ -76,11 +77,25 @@ void Light::UpdateLighting(glm::mat4& projection, glm::mat4& view, Camera& camer
 	myShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 }
 
-void Light::updateAmbient()
+
+void Light::updateAmbient(float &deltaTime)
 {
-	this->ambient += this->counter;
+	
 	if (this->ambient > 0.9f || this->ambient < 0.01f)
 	{
-		this->counter = this->counter * -1.0f;
+		this->counter = this->counter * -1;
+		if (this->ambient > 0.9f)
+		{
+			this->ambient = 0.89f;
+		}
+		else
+		{
+			this->ambient = 0.1f;
+		}
 	}
+	else
+	{
+		this->ambient += (this->counter * deltaTime);
+	}
+	//std::cout << this->ambient << "\n";
 }

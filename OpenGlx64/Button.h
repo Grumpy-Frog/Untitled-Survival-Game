@@ -33,7 +33,7 @@ public:
 		//entity already deallocated everything
 	}
 
-	void Update(glm::mat4& projection, glm::mat4& view, Camera& camera, float degree,
+	void Update(glm::mat4& projection, glm::mat4& view, Camera& camera, float degree,float &deltaTime,
 		glm::vec3 newScale, glm::vec3* pointLights);
 
 	void Render(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3 newScale, float degree);

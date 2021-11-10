@@ -360,10 +360,10 @@ void Enemy::deallocEnem()
 }
 
 
-void Enemy::Update(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3* pointLights)
+void Enemy::Update(glm::mat4& projection, glm::mat4& view, Camera& camera,float &deltaTime, glm::vec3* pointLights)
 {
 	calculatePlayer();
-	this->UpdateLighting(projection, view, camera, *this->myShader, pointLights);
+	this->UpdateLighting(projection, view, camera, *this->myShader,deltaTime, pointLights);
 	this->Render(projection, view, camera);
 
 	if (this->getActive() == true)

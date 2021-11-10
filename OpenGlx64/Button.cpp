@@ -1,9 +1,9 @@
 #include "Button.h"
 
-void Button::Update(glm::mat4& projection, glm::mat4& view, Camera& camera, float degree,
+void Button::Update(glm::mat4& projection, glm::mat4& view, Camera& camera, float degree,float &deltaTime,
 	glm::vec3 newScale, glm::vec3* pointLights)
 {
-	this->UpdateLighting(projection, view, camera, *this->myShader, pointLights);
+	this->UpdateLighting(projection, view, camera, *this->myShader,deltaTime, pointLights);
 	this->Render(projection, view, camera, newScale, degree);
 }
 

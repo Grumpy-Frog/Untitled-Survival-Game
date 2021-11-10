@@ -62,7 +62,7 @@ public:
 
 	~Hedge();
 
-	void update(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3* pointLights);
+	void update(glm::mat4& projection, glm::mat4& view, Camera& camera, float& deltaTime, glm::vec3* pointLights);
 
 	void updateRender(glm::mat4& projection, glm::mat4& view, std::vector<glm::mat4>& modelMatricesRef, Model& modelRef);
 

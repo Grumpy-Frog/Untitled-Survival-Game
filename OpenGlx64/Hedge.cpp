@@ -195,11 +195,17 @@ Hedge::Hedge(const char* vertexShader, const char* fragmentShader, string hedgeM
 	system("start ground.exe");
 
 	//loading
-	float time = 55.0f;
+	// timing
+	float deltaTime = 0.0f;
+	float lastFrame = glfwGetTime();
+	float time = 6.0f;
 	while (time > 0.0f)
 	{
-		time -= 1.0f;
-		system("cls");
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		time -= deltaTime;
+		//system("cls");
 	}
 
 	this->Hedges = new Model(hedgeModel);
@@ -219,9 +225,9 @@ Hedge::~Hedge()
 	delete this->myMazeArray;
 }
 
-void Hedge::update(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3* pointLights)
+void Hedge::update(glm::mat4& projection, glm::mat4& view, Camera& camera,float &deltaTime, glm::vec3* pointLights)
 {
-	this->UpdateLighting(projection, view, camera, *this->cubeShader, pointLights);
+	this->UpdateLighting(projection, view, camera, *this->cubeShader,deltaTime, pointLights);
 
 	updateRender(projection, view, modelMatricesHedge, *Hedges);
 	updateRender(projection, view, modelMatricesGround, *Ground);

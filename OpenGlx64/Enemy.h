@@ -141,7 +141,7 @@ public:
 	void deallocEnem();
 
 
-	void Update(glm::mat4& projection, glm::mat4& view, Camera& camera, glm::vec3* pointLights);
+	void Update(glm::mat4& projection, glm::mat4& view, Camera& camera,float &deltaTime, glm::vec3* pointLights);
 
 public:
 	void setId(int id);

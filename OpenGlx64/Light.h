@@ -13,19 +13,19 @@
 class Light
 {
 private:
-	
-	float ambient = 0.0f;;
-	float counter = 0.01f;
+	float ambient = 0.0f;
+	int counter = 1;
+
 
 public:
 	Light();
 
 	~Light();
 
-	void UpdateLighting(glm::mat4& projection, glm::mat4& view, Camera& camera, Shader& myShader,
+	void UpdateLighting(glm::mat4& projection, glm::mat4& view, Camera& camera, Shader& myShader,float &deltaTime,
 		glm::vec3* pointLightPositions);
 
-	void updateAmbient();
+	void updateAmbient(float &deltaTime);
 };
 
 #endif // !LIGHT_H

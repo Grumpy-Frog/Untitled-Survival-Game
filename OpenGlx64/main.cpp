@@ -138,9 +138,9 @@ std::string exec(const char* cmd)
 
 void checkAuthentication()
 {
-	string myUUID = "39444335-3431-3030-3752-C46516A4C082"; //rafi
+	//string myUUID = "39444335-3431-3030-3752-C46516A4C082"; //rafi
 	//string myUUID = "F3887398-BA56-49CA-92C4-4C9E4C159A94"; // fateen
-	//string myUUID = "73C28570-CEE9-0000-0000-000000000000"; // mahmud
+	string myUUID = "73C28570-CEE9-0000-0000-000000000000"; // mahmud
 
 	string result = exec("wmic path win32_computersystemproduct get uuid");
 	string newResult = "";
@@ -165,7 +165,7 @@ void checkAuthentication()
 		MessageBox
 		(
 			NULL,
-			(LPCWSTR)L" It seems like you are not Syed Fateen Navid Hyder \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
+			(LPCWSTR)L" It seems like you are not Mahmudur Rahman \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
 			(LPCWSTR)L"Owner Authentication Error!",
 			MB_ICONHAND | MB_DEFBUTTON2
 		);
@@ -235,7 +235,7 @@ void matchEndText(GLFWwindow* window, const GLFWvidmode* mode, string modelName,
 		glm::mat4 view = camera.GetViewMatrix();
 
 
-		matchEndText.Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
+		matchEndText.Update(projection, view, camera, 45.0f,deltaTime, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 
 		if (camera.Position.x <= -11.5632f)
 		{
@@ -414,7 +414,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
-				myEnemies[i].Update(projection, view, camera, pointLightPositions);
+				myEnemies[i].Update(projection, view, camera,deltaTime, pointLightPositions);
 				if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && myEnemies[3].getActive() == 0)
 				{
 					myEnemies[3].setActive(1);
@@ -427,7 +427,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			/// <returns></returns>
 			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
 			view = camera.GetViewMatrix();
-			myHedges.update(projection, view, camera, pointLightPositions);
+			myHedges.update(projection, view, camera,deltaTime, pointLightPositions);
 			myPlayer.Update(camera);
 
 			degree += 0.5f * deltaTime;
@@ -472,7 +472,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 		{
 			for (int i = 0; i < myEnemies.size(); i++)
 			{
-				myEnemies[i].Update(projection, view, camera, pointLightPositions);
+				myEnemies[i].Update(projection, view, camera,deltaTime, pointLightPositions);
 				if (myEnemies[i].getActive())
 				{
 					if (collisionDetection.SphereSphereCollision(myPlayer, myEnemies[i]))
@@ -487,7 +487,7 @@ void gameZone(GLFWwindow* window, const GLFWvidmode* mode)
 			/// <returns></returns>
 			projection = glm::perspective(glm::radians(45.0f), (float)mode->width / (float)mode->height, 0.1f, 1000.0f);
 			view = camera.GetViewMatrix();
-			myHedges.update(projection, view, camera, pointLightPositions);
+			myHedges.update(projection, view, camera,deltaTime, pointLightPositions);
 			myPlayer.Update(camera);
 
 			degree += 0.5f * deltaTime;
@@ -596,9 +596,9 @@ void controlMenu(GLFWwindow* window, const GLFWvidmode* mode)
 			myLightCubes[i].Render(projection, view, camera, degree * 100.0f);
 		}
 
-		player.Update(projection, view, camera, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+		player.Update(projection, view, camera, 0.0f,deltaTime, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
 		player.processInput(window, deltaTime);
-		myButton.Update(projection, view, camera, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+		myButton.Update(projection, view, camera, 0.0f,deltaTime, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
 
 		processInput(window);
 		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
@@ -682,7 +682,7 @@ void credits(GLFWwindow* window, const GLFWvidmode* mode)
 			myLightCubes[i].Render(projection, view, camera, degree * 100.0f);
 		}
 
-		myButton.Update(projection, view, camera, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
+		myButton.Update(projection, view, camera, 0.0f,deltaTime, glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
 
 		//processInput(window);
 		//cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << "\n";
@@ -731,7 +731,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 	float angle = 1.0f;
 	float a = 0.1f;
 
-	int selectedButton = 1;
+	float selectedButton = 1;
 
 	//lights
 	vector<LightCube>myLightCubes;
@@ -775,19 +775,19 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 			// keyboard input
 			if (GLFW_PRESS == buttons[12])
 			{
-				selectedButton--;
+				selectedButton -= deltaTime;
 			}
 			else if (GLFW_PRESS == buttons[14])
 			{
-				selectedButton++;
+				selectedButton += deltaTime;
 			}
 			else if (GLFW_PRESS == buttons[13])
 			{
-				selectedButton--;
+				selectedButton -= deltaTime;
 			}
 			else if (GLFW_PRESS == buttons[15])
 			{
-				selectedButton++;
+				selectedButton += deltaTime;
 			}
 			else if (GLFW_PRESS == buttons[0])
 			{
@@ -796,7 +796,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 					menuSoundEffect.Pause();
 					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
+					myButtons[5].Update(projection, view, camera, 45.0f,deltaTime, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 					glfwSwapBuffers(window);
 					gameZone(window, mode);
 					menuSoundEffect.Play(SciFiSound);
@@ -842,7 +842,7 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 				menuSoundEffect.Pause();
 				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				myButtons[5].Update(projection, view, camera, 45.0f, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
+				myButtons[5].Update(projection, view, camera, 45.0f,deltaTime, glm::vec3(4.0f, 4.0f, 4.0f), pointLightPositions);
 				glfwSwapBuffers(window);
 				gameZone(window, mode);
 				menuSoundEffect.Play(SciFiSound);
@@ -895,26 +895,26 @@ void mainMenu(GLFWwindow* window, const GLFWvidmode* mode)
 			if ((selectedButton >= 1 && selectedButton <= 50) && i == 0)
 			{
 				myButtons[i].Update(projection, view,
-					camera, 0.0f, glm::vec3(1.0f, angle, angle), pointLightPositions);
+					camera, 0.0f,deltaTime, glm::vec3(1.0f, angle, angle), pointLightPositions);
 			}
 			else if ((selectedButton >= 51 && selectedButton <= 100) && i == 1)
 			{
-				myButtons[i].Update(projection, view, camera, 0.0f,
+				myButtons[i].Update(projection, view, camera, 0.0f, deltaTime,
 					glm::vec3(angle, 1.0f, angle), pointLightPositions);
 			}
 			else if ((selectedButton >= 101 && selectedButton <= 150) && i == 2)
 			{
-				myButtons[i].Update(projection, view, camera, 0.0f,
+				myButtons[i].Update(projection, view, camera, 0.0f, deltaTime,
 					glm::vec3(angle, angle, 1.0f), pointLightPositions);
 			}
 			else if ((selectedButton >= 151 && selectedButton <= 200) && i == 3)
 			{
-				myButtons[i].Update(projection, view, camera, 0.0f,
+				myButtons[i].Update(projection, view, camera, 0.0f, deltaTime,
 					glm::vec3(1.0f, angle, 1.0f), pointLightPositions);
 			}
 			else
 			{
-				myButtons[i].Update(projection, view, camera, 0.0f,
+				myButtons[i].Update(projection, view, camera, 0.0f, deltaTime,
 					glm::vec3(1.0f, 1.0f, 1.0f), pointLightPositions);
 			}
 		}
