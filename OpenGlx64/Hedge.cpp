@@ -191,14 +191,20 @@ Hedge::Hedge(const char* vertexShader, const char* fragmentShader, string hedgeM
 
 	auto hedge = textureGenerator.hedge();
 	textureGenerator.actual_visualization_function(hedge, true);
-	system("start hedge.exe");
-	system("start ground.exe");
+	//system("start hedge.exe");
+	//system("start ground.exe");
 
+
+	img::Mat hedgeImg = img::imread("Models/Hedge/hedge.ppm");
+	img::imwrite("Models/Hedge/hedge.jpg",hedgeImg);
+	img::Mat groundImg = img::imread("Models/Ground/ground.ppm");
+	img::imwrite("Models/Ground/ground.jpg", groundImg);
 	//loading
 	// timing
+	/*
 	float deltaTime = 0.0f;
 	float lastFrame = glfwGetTime();
-	float time = 6.0f;
+	float time = 0.0f;
 	while (time > 0.0f)
 	{
 		float currentFrame = glfwGetTime();
@@ -206,7 +212,8 @@ Hedge::Hedge(const char* vertexShader, const char* fragmentShader, string hedgeM
 		lastFrame = currentFrame;
 		time -= deltaTime;
 		//system("cls");
-	}
+	
+	*/
 
 	this->Hedges = new Model(hedgeModel);
 	this->Ground = new Model(groundModel);
@@ -225,9 +232,9 @@ Hedge::~Hedge()
 	delete this->myMazeArray;
 }
 
-void Hedge::update(glm::mat4& projection, glm::mat4& view, Camera& camera,float &deltaTime, glm::vec3* pointLights)
+void Hedge::update(glm::mat4& projection, glm::mat4& view, Camera& camera, float& deltaTime, glm::vec3* pointLights)
 {
-	this->UpdateLighting(projection, view, camera, *this->cubeShader,deltaTime, pointLights);
+	this->UpdateLighting(projection, view, camera, *this->cubeShader, deltaTime, pointLights);
 
 	updateRender(projection, view, modelMatricesHedge, *Hedges);
 	updateRender(projection, view, modelMatricesGround, *Ground);

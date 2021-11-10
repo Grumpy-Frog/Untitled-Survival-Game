@@ -138,9 +138,10 @@ std::string exec(const char* cmd)
 
 void checkAuthentication()
 {
-	//string myUUID = "39444335-3431-3030-3752-C46516A4C082"; //rafi
+	string myUUID = "39444335-3431-3030-3752-C46516A4C082"; //rafi
 	//string myUUID = "F3887398-BA56-49CA-92C4-4C9E4C159A94"; // fateen
-	string myUUID = "73C28570-CEE9-0000-0000-000000000000"; // mahmud
+	//string myUUID = "031B021C-040D-05A3-4906-CC0700080009"; // zaed
+	//string myUUID = "73C28570-CEE9-0000-0000-000000000000"; // mahmud
 
 	string result = exec("wmic path win32_computersystemproduct get uuid");
 	string newResult = "";
@@ -165,7 +166,7 @@ void checkAuthentication()
 		MessageBox
 		(
 			NULL,
-			(LPCWSTR)L" It seems like you are not Mahmudur Rahman \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
+			(LPCWSTR)L" It seems like you are not Zaed Bin Monir \n\n Please contact\n Email: rafihassan@iut-dhaka.edu\n Contact No: +8801701459732\n",
 			(LPCWSTR)L"Owner Authentication Error!",
 			MB_ICONHAND | MB_DEFBUTTON2
 		);

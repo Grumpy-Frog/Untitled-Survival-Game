@@ -17,6 +17,11 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include <opencv2/opencv.hpp>
+namespace img
+{
+	using namespace cv;
+}
 
 #include "Shader.h"
 #include "model.h"
